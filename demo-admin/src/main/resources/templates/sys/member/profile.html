@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="#{member.personalInformation}"></title>
+
+    <script type="text/javascript" th:inline="javascript" layout:fragment="custom-script">
+        $().ready(function() {
+
+            // 表单验证
+            $('#inputForm').validate({
+                rules: {
+                    cellphone: {
+                        required: true,
+                        phoneCN: true,
+                        remote:{
+                            url: '/sys/member/checkCellphone'
+                            , type: 'GET'
+                            , dataType: 'JSON'
+                            , data: {
+                                id: function () {
+                                    return $('input[name="id"]').val();
+                                },
+                                cellphone: function () {
+                                    return $('input[name="cellphone"]').val();
+                                }
+                            }
+                            , dataFilter: function (data) {//判断控制器返回的内容
+                                if (data == "true") {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            }
+                        }
+                    },
+                    email: {
+                        required:true,
+                        email: true,
+                        remote:{
+                            url: '/sys/member/checkEmail'
+                            , type: 'GET'
+                            , dataType: 'JSON'
+                            , data: {
+                                id: function () {
+                                    return $('input[name="id"]').val();
+                                },
+                                email: function () {
+                                    return $('input[name="email"]').val();
+                                }
+                            }
+                            , dataFilter: function (data) {//判断控制器返回的内容
+                                if (data == "true") {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            }
+                        }
+                    },
+                    // phone:{telephoneCN:true}
+                },
+                messages: {
+                    cellphone: {
+                        remote: /*[[#{validate.cellphone}]]*/ "该手机号码已存在！"
+                    },
+                    email: {
+                        remote: /*[[#{validate.email}]]*/ "该邮箱已存在！"
+                    }
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <div class="layui-card-header" th:text="#{member.personalInformation}"></div>
+        <div class="layui-card-body">
+            <form id="inputForm" class="layui-form" action="profile" method="post" th:object="${bean}">
+                <input type="hidden" th:field="*{id}" />
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{member.username}"></label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{memberName}" class="layui-input" maxlength="200" th:placeholder="#{placeholder.memberName}" readonly="true" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{member.realName}"></label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{realName}" class="layui-input" maxlength="200"  th:placeholder="#{placeholder.realName}" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{member.cellphone}"></label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{cellphone}" class="layui-input" maxlength="200" th:placeholder="#{placeholder.cellphone}" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{member.email}"></label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{email}" class="layui-input" maxlength="200" th:placeholder="#{placeholder.email}" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit="" th:text="#{common.btn.submit}"></button>
+                        <button type="button" class="layui-btn layui-btn-primary" onclick="history.back(); return false;" th:text="#{common.btn.back}"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title>演示内容主页</title>
+    <style>
+
+    </style>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <p style="margin-bottom: 10px">
+        <span class="layui-breadcrumb">
+            <a href="">首页</a>
+            <a href="">品牌</a>
+            <a><cite>保时捷</cite></a>
+        </span>
+    </p>
+
+    <div class="layui-card">
+        <div class="layui-card-header">
+            产品详情
+        </div>
+        <div class="layui-card-body">
+            <div class="layui-row">
+                <div class="layui-col-md4">
+                    <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690" class="brand-main-picture" />
+                </div>
+                <div class="layui-col-md8">
+                    <div class="layui-form layui-form-pane" action="" lay-filter="component-form-element">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">产品名：</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="fullname" lay-verify="required" placeholder="" autocomplete="off" th:value="保时捷" th:readonly="true" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">产品配方：</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="fullname" lay-verify="required" placeholder="" autocomplete="off" th:value="测试配方" th:readonly="true" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item layui-form-text">
+                            <label class="layui-form-label">产品详情：</label>
+                            <div class="layui-input-block">
+                                <textarea name="other" placeholder="" class="layui-textarea" th:text="测试" th:readonly="true"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-card">
+        <div class="layui-card-header">
+            图片素材
+            <button type="button" class="layui-btn layui-btn-xs pane-right-button">
+                上传 <i class="layui-icon">&#xe67c;</i>
+            </button>
+        </div>
+        <div class="layui-card-body">
+            <div class="layui-row layui-col-space25 content-list">
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <a href="#" class="content-more-container">
+                        <i class="layui-icon layui-icon-more"> </i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="layui-card">
+        <div class="layui-card-header">
+            视频素材
+            <a href="#" class="layui-a-tips">更多</a>
+        </div>
+        <div class="layui-card-body">
+            <div class="layui-row layui-col-space25 content-list">
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="layui-card">
+        <div class="layui-card-header">
+            话术
+            <a href="#" class="layui-a-tips">更多</a>
+        </div>
+        <div class="layui-card-body">
+            <div class="layui-row layui-col-space25 content-list">
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">
+                    <p class="content-title">
+                        测试图片素材
+                    </p>
+                    <p class="content-img">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690"/>
+                    </p>
+                    <p class="content-desc">
+                        测试描述
+                    </p>
+                    <p class="content-date">
+                        2019.06.06
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+
+</script>
+</body>
+</html>

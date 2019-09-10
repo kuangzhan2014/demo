@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout.html}">
+<head>
+    <title>品牌主页</title>
+    <style>
+        ul.brand-list {
+            padding: 10px;
+        }
+        .brand-item {
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            margin-right: 10px;
+        }
+        .brand-item img {
+            width: 100%;
+            height: 100%;
+            object-fit:cover;
+        }
+        .brand-item .brand-title {
+            display: block;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-carousel" id="brandTop">
+        <div carousel-item>
+            <div><img style="height: 100%; width: 100%; " th:src="${background}" /></div>
+        </div>
+    </div>
+
+    <div class="layui-tab layui-tab-brief" lay-filter="myBrands">
+        <ul class="layui-tab-title">
+            <li class="layui-this" th:text="#{ui.brand.Proxied}"></li>
+        </ul>
+        <div class="layui-tab-content">
+            <ul class="brand-list">
+                <li class="brand-item"  th:each="item: ${inBrandList}">
+                    <a href="javascript:;" th:onclick="chooseBrand([[${item.id}]])">
+                        <img th:src="${item.smallPictureUrl}" class="layui-circle" />
+                        <span class="brand-title" th:text="${item.name}"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-tab layui-tab-brief" lay-filter="otherBrands">
+        <ul class="layui-tab-title">
+            <li class="layui-this" th:text="#{ui.brand.unrepresented}"></li>
+        </ul>
+        <div class="layui-tab-content">
+            <ul class="brand-list">
+                <li class="brand-item"  th:each="item: ${unInBrandList}">
+                    <a href="javascript:;" th:onclick="applyInBrand([[${item.id}]])">
+                        <img th:src="${item.smallPictureUrl}" class="layui-circle" />
+                        <span class="brand-title" th:text="${item.name}"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script layout:fragment="custom-script" th:inline="javascript">
+    layui.use(['carousel','memberUtils'], function(){
+        var carousel = layui.carousel
+            ,memberUtils = layui.memberUtils;
+        //建造实例
+        carousel.render({
+            elem: '#brandTop'
+            ,width: '100%' //设置容器宽度
+            ,arrow: 'always' //始终显示箭头
+            //,anim: 'updown' //切换动画方式
+        });
+        chooseBrand = function (id){
+            memberUtils.setBrandId(id)
+            window.location.href = '/sys/indexFrame'
+        }
+    });
+
+
+    var buttonSubmit=/*[[#{common.btn.submit}]]*/'提交'
+    var buttonReturn=/*[[#{common.btn.back}]]*/'返回'
+    var responseFail=/*[[#{common.response.fail}]]*/'操作失败！'
+    var title=/*[[#{ui.brand.applyInBrand}]]*/'申请代理品牌'
+    var confirmMsg=/*[[#{confirm.msg.applyInBrand}]]*/'确认申请代理品牌?'
+
+    function applyInBrand(id){
+        layer.confirm(confirmMsg, {icon: 3, title: title, btn: [buttonSubmit, buttonReturn]}, function (index, layero) {
+            layer.close(index);
+            // 确定
+            $.ajax({
+                url: "/brand/applyInBrand",
+                type: "POST",
+                data: {id: id},
+                dataType: "json",
+                cache: false,
+                success: function (data) {
+                    layer.msg(data.data)
+                }, error:function(xhr, status, error) {
+                    var msg = xhr.responseJSON.message;
+                    layer.msg(msg == null ? responseFail : msg);
+                }
+            });
+        }, function (index) {
+            // 取消
+            layer.close(index);
+        });
+    }
+</script>
+</body>
+</html>
+

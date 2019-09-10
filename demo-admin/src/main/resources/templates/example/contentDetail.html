@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="#{module.categoryManagement}"></title>
+    <style>
+
+    </style>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content" style="background-color: white">
+    <div class="layui-tab layui-tab-card">
+        <ul class="layui-tab-title">
+            <li class="layui-this">图片</li>
+            <li>视频</li>
+            <li>文字</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div class="layui-row layui-col-space10 content-box">
+                    <div class="layui-col-sm7 layui-col-md7 layui-col-lg7">
+                        <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690" />
+                    </div>
+                    <div class="layui-col-sm5 layui-col-md5 layui-col-lg5 content-box-side">
+                        <p class="content-title">测试标题</p>
+                        <p class="content-desc">时捷（Porsche)，是德国大众汽车集团旗下的豪华汽车品牌，又叫波尔舍，总部位于德国斯图加特，是欧美汽车的主要代表。主要车型有911、Boxster、Cayman、Panamera、Cayenne、Macan。
+                            1931年，保时捷成立于斯图加特，以生产高级跑车闻名于世界车坛。创始人费迪南德·波尔舍（同费迪南德·保时捷）是一位享誉世界车坛的著名设计师。
+                            2018年12月18日，世界品牌实验室编制的《2018世界品牌500强》揭晓，保时捷排名第60位。
+                        </p>
+                        <div class="layui-form">
+                            <div class="layui-form-item">
+                                <input type="radio" name="dpi" title="72dpi" checked>
+                                <div class="layui-form-mid layui-word-aux">数字媒体</div>
+                            </div>
+                            <div class="layui-form-item">
+                                <input type="radio" name="dpi" title="150dpi">
+                                <div class="layui-form-mid layui-word-aux">喷绘</div>
+                            </div>
+                            <div class="layui-form-item">
+                                <input type="radio" name="dpi" title="300dpi">
+                                <div class="layui-form-mid layui-word-aux">数字打印</div>
+                            </div>
+                        </div>
+                        <button type="button" class="layui-btn layui-btn-fluid">下载</button>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div class="content-box">
+                    <div class="layui-row">
+                        <div class="layui-col-md10">
+                            <div>
+                            <img src="http://s14.sinaimg.cn/mw690/001Rpv3lty6Yp9Q5WUdbd&690" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-row layui-col-space20">
+                        <div class="layui-col-sm8 layui-col-md8 layui-col-lg8">
+                            <p class="content-title">测试标题</p>
+                            <p class="content-desc">时捷（Porsche)，是德国大众汽车集团旗下的豪华汽车品牌，又叫波尔舍，总部位于德国斯图加特，是欧美汽车的主要代表。主要车型有911、Boxster、Cayman、Panamera、Cayenne、Macan。
+                                1931年，保时捷成立于斯图加特，以生产高级跑车闻名于世界车坛。创始人费迪南德·波尔舍（同费迪南德·保时捷）是一位享誉世界车坛的著名设计师。
+                                2018年12月18日，世界品牌实验室编制的《2018世界品牌500强》揭晓，保时捷排名第60位。
+                            </p>
+                        </div>
+                        <div class="layui-col-sm4 layui-col-md4 layui-col-lg4">
+                            <div class="layui-form">
+                                <div class="layui-form-item">
+                                    <input type="radio" name="resolution" title="480p" checked>
+                                    <div class="layui-form-mid layui-word-aux">清晰</div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <input type="radio" name="resolution" title="720p">
+                                    <div class="layui-form-mid layui-word-aux">高清</div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <input type="radio" name="resolution" title="1080p">
+                                    <div class="layui-form-mid layui-word-aux">超清</div>
+                                </div>
+                            </div>
+                            <button type="button" class="layui-btn layui-btn-fluid">下载</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item">内容3</div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+    layui.use('form', function() {
+
+    })
+</script>
+</body>
+</html>

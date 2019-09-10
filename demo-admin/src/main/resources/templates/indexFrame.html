@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <title th:text="#{app.title}"></title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" th:href="@{/static/layuiadmin/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/layuiadmin/style/admin.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}" media="all">
+    <script>
+        /^http(s*):\/\//.test(location.href) || alert('请先部署到 localhost 下再访问');
+    </script>
+</head>
+<body class="layui-layout-body">
+
+<div id="LAY_app">
+    <div class="layui-layout layui-layout-admin">
+        <div class="layui-header">
+            <!-- 头部区域 -->
+            <ul class="layui-nav layui-layout-left">
+                <li class="layui-nav-item layadmin-flexible" lay-unselect>
+                    <a href="javascript:;" layadmin-event="flexible">
+                        <i class="layui-icon layui-icon-shrink-right" id="LAY_app_flexible"></i>
+                    </a>
+                </li>
+                <!--<li class="layui-nav-item layui-hide-xs" lay-unselect>-->
+                <!--<a href="http://www.layui.com/admin/" target="_blank" title="前台">-->
+                <!--<i class="layui-icon layui-icon-website"></i>-->
+                <!--</a>-->
+                <!--</li>-->
+                <li class="layui-nav-item" lay-unselect>
+                    <a href="javascript:;" layadmin-event="refresh" title="refresh">
+                        <i class="layui-icon layui-icon-refresh-3"></i>
+                    </a>
+                </li>
+                <!--<li class="layui-nav-item layui-hide-xs" lay-unselect>-->
+                <!--<input type="text" placeholder="搜索..." autocomplete="off" class="layui-input layui-input-search" layadmin-event="serach" lay-action="template/search.html?keywords=">-->
+                <!--</li>-->
+            </ul>
+            <ul class="layui-nav layui-layout-right" lay-filter="layadmin-layout-right">
+
+                <!--<li class="layui-nav-item" lay-unselect>-->
+                    <!--<a lay-href="app/message/index.html" layadmin-event="message">-->
+                        <!--<i class="layui-icon layui-icon-notice"></i>-->
+
+                        <!--&lt;!&ndash; 如果有新消息，则显示小圆点 &ndash;&gt;-->
+                        <!--<span class="layui-badge-dot"></span>-->
+                    <!--</a>-->
+                <!--</li>-->
+                <li class="layui-nav-item" lay-unselect>
+                    <a href="javascript:;" >
+                        <cite th:title="#{index.switchBrand}" name="selectBrand">
+                        </cite>
+                    </a>
+                    <dl class="layui-nav-child" id="popupSelectBrand">
+                    </dl>
+                </li>
+                <!--<li class="layui-nav-item layui-hide-xs" lay-unselect>-->
+                <!--<div style="margin-left: 30px;">-->
+                <!--<input type="hidden" name="color" value="" id="test-all-input">-->
+                <!--<div id="test-all"></div>-->
+                <!--</div>-->
+                <!--</li>-->
+                <li class="layui-nav-item layui-hide-xs" lay-unselect>
+                    <a href="javascript:;" layadmin-event="fullscreen">
+                        <i class="layui-icon layui-icon-screen-full"></i>
+                    </a>
+                </li>
+
+                <li class="layui-nav-item" lay-unselect>
+                    <a href="javascript:;">
+                        <cite>
+                            <shiro:principal property="loginName"/>
+                        </cite>
+                        <span style="display: none;" name="systemEnvironment"><shiro:principal
+                                property="systemEnvironment"/></span>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a th:attr="lay-href=@{/sys/member/profile}" th:text="#{member.profile}"></a></dd>
+                        <dd><a th:attr="lay-href=@{/sys/member/changePassword}" th:text="#{member.changePassword}"></a>
+                        </dd>
+                        <hr>
+                        <dd style="text-align: center;"><a href="javascript:;" id="logout" th:text="#{member.logout}"></a></dd>
+                    </dl>
+                </li>
+
+                <!--<li class="layui-nav-item layui-hide-xs" lay-unselect>-->
+                    <!--<a href="javascript:;" layadmin-event="about"><i-->
+                            <!--class="layui-icon layui-icon-more-vertical"></i></a>-->
+                <!--</li>-->
+                <!--<li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-unselect>-->
+                    <!--<a href="javascript:;" layadmin-event="more"><i class="layui-icon layui-icon-more-vertical"></i></a>-->
+                <!--</li>-->
+            </ul>
+        </div>
+
+        <!-- 侧边菜单 -->
+        <div class="layui-side layui-side-menu">
+            <div class="layui-side-scroll">
+                <div class="layui-logo" >
+                    <span th:text="#{app.title}"></span>
+                </div>
+                <ul class="layui-nav layui-nav-tree" lay-shrink="all" id="LAY-system-side-menu"
+                    lay-filter="layadmin-system-side-menu">
+                    <li class="layui-nav-item">
+                        <a th:attr="lay-href=@{/brand/detail}">
+                            <i class="layui-icon layui-icon-home"></i>
+                            <cite th:text="#{module.brandHome}"></cite>
+                        </a>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a th:attr="lay-href=@{/sales/list}">
+                            <i class="layui-icon layui-icon-home"></i>
+                            <cite th:text="#{module.productSales}"></cite>
+                        </a>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a th:attr="lay-href=@{/notice/list}" lay-direction="1" >
+                            <i class="layui-icon layui-icon-find-fill"></i>
+                            <cite th:text="#{module.marketVision}"></cite>
+                        </a>
+                        <!--<dl class="layui-nav-child">-->
+                            <!--<dd data-name="notice" >-->
+                                <!--<a th:attr="lay-href=@{/notice/list}" th:text="#{module.marketVision.notice}"></a>-->
+                            <!--</dd>-->
+                        <!--</dl>-->
+                    </li>
+                    <!--<li data-name="examples" class="layui-nav-item">-->
+                        <!--<a href="javascript:;" lay-direction="2">-->
+                            <!--<i class="layui-icon layui-icon-app"></i>-->
+                            <!--<cite th:text="演示"></cite>-->
+                        <!--</a>-->
+                        <!--<dl class="layui-nav-child" id="examples">-->
+                            <!--<dd data-name="contentIndex" class="layui-this">-->
+                                <!--<a th:attr="lay-href=@{/example/contentIndex}" th:text="内容主页"></a>-->
+                            <!--</dd>-->
+                            <!--<dd data-name="contentList">-->
+                                <!--<a th:attr="lay-href=@{/example/contentList}" th:text="内容列表"></a>-->
+                            <!--</dd>-->
+                            <!--<dd data-name="contentDetail">-->
+                                <!--<a th:attr="lay-href=@{/example/contentDetail}" th:text="内容详情"></a>-->
+                            <!--</dd>-->
+                        <!--</dl>-->
+                    <!--</li>-->
+                    <li data-name="brandSellingPoint" class="layui-nav-item">
+                        <a href="javascript:;" lay-direction="2">
+                            <i class="layui-icon layui-icon-fire"></i>
+                            <cite th:text="#{module.brandSellingPoint}"></cite>
+                        </a>
+                        <dl class="layui-nav-child" id="brandSellingPoint">
+                        </dl>
+                    </li>
+                    <li data-name="productManagement" class="layui-nav-item">
+                        <a href="javascript:;" lay-direction="2">
+                            <i class="layui-icon layui-icon-app"></i>
+                            <cite th:text="#{entity.product}"></cite>
+                        </a>
+                        <dl class="layui-nav-child" id="productManagement">
+                        </dl>
+                    </li>
+                    <li data-name="productManagement" class="layui-nav-item" shiro:hasPermission="brand:management">
+                        <a href="javascript:;" lay-direction="2">
+                            <i class="layui-icon layui-icon-app"></i>
+                            <cite th:text="#{module.brandManagement}"></cite>
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd data-name="member" shiro:hasPermission="brand:management">
+                                <a th:attr="lay-href=@{/brand/list}" th:text="#{module.brandManagement}"></a>
+                            </dd>
+                            <dd data-name="member" shiro:hasPermission="brandEnter:management">
+                                <a th:attr="lay-href=@{/brandEnter/list}" th:text="#{module.brandEnterManagement}"></a>
+                            </dd>
+                            <dd data-name="member" shiro:hasPermission="category:management">
+                                <a th:attr="lay-href=@{/category/list}" th:text="#{module.categoryManagement}"></a>
+                            </dd>
+                            <dd data-name="member" shiro:hasPermission="product:management">
+                                <a th:attr="lay-href=@{/product/page}" th:text="#{module.productManagement}"></a>
+                            </dd>
+                            <dd data-name="member" shiro:hasPermission="material:management">
+                                <a th:attr="lay-href=@{/material/page}" th:text="#{module.materialManagement}"></a>
+                            </dd>
+                        </dl>
+                    </li>
+                    <li data-name="sys" class="layui-nav-item" shiro:hasPermission="system:management">
+                        <a href="javascript:;" lay-direction="2">
+                            <i class="layui-icon layui-icon-set"></i>
+                            <cite th:text="#{module.systemManagement}"></cite>
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd data-name="member" shiro:hasPermission="system:member">
+                                <a th:attr="lay-href=@{/sys/member/list}" th:text="#{module.system.member}"></a>
+                            </dd>
+                            <dd data-name="role" shiro:hasPermission="system:role">
+                                <a th:attr="lay-href=@{/sys/role/list}" th:text="#{module.system.role}"></a>
+                            </dd>
+                            <dd data-name="role" shiro:hasPermission="background:management">
+                                <a th:attr="lay-href=@{/back/detail}" th:text="#{module.background}"></a>
+                            </dd>
+                            <!--<dd data-name="permission" shiro:hasPermission="system:permission">-->
+                                <!--<a th:attr="lay-href=@{/sys/permission/list}" th:text="#{module.system.permission}"></a>-->
+                            <!--</dd>-->
+                            <!--<dd data-name="param" shiro:hasPermission="system:param">-->
+                                <!--<a th:attr="lay-href=@{/sys/param/list}" th:text="#{module.system.param}"></a>-->
+                            <!--</dd>-->
+                        </dl>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 页面标签 -->
+        <div class="layadmin-pagetabs" id="LAY_app_tabs" style="display: none">
+            <div class="layui-tab" lay-unauto lay-allowClose="true" lay-filter="layadmin-layout-tabs">
+                <ul class="layui-tab-title" id="LAY_app_tabsheader">
+                    <li lay-id="home/console.html" lay-attr="home/console.html" class="layui-this"><i
+                            class="layui-icon layui-icon-home"></i></li>
+                </ul>
+            </div>
+        </div>
+
+
+        <!-- 主体内容 -->
+        <div class="layui-body" id="LAY_app_body">
+            <div class="layadmin-tabsbody-item layui-show">
+                <iframe th:src="@{/brand/detail}" frameborder="0" class="layadmin-iframe"></iframe>
+            </div>
+        </div>
+
+        <!-- 辅助元素，一般用于移动设备下遮罩 -->
+        <div class="layadmin-body-shade" layadmin-event="shade"></div>
+    </div>
+</div>
+
+<script th:src="@{/static/layuiadmin/layui/layui.js}"></script>
+<script th:inline="javascript">
+    layui.config({
+        base: '/static/layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+        , memberUtils: '{/}/static/js/memberUtils'
+    }).use('index');
+
+    layui.use(['index', 'memberUtils'], function () {
+        var admin = layui.admin
+            , $ = layui.$
+            // ,colorpicker = layui.colorpicker
+            , memberUtils = layui.memberUtils;
+
+
+        $(function () {
+            memberUtils.setSystemEnvironment($('span[name="systemEnvironment"]').text());
+            memberUtils.setLoginName($($('a[name="loginName"] cite')[0]).text());
+            getMemberBrandInfo();
+        })
+
+        $('#logout').click(function () {
+            memberUtils.setLanguage(null)
+            window.location.href = '/sys/logout';
+        })
+        /**
+         * 获取第一个品牌
+         * @param $
+         */
+        function getMemberBrandInfo() {
+            var failMsg = /*[[#{error.brand.initBrand.fail}]]*/'初始化品牌信息失败'
+            // 确定
+            $.ajax({
+                url: "/brand/fistMemberBrandByMember",
+                type: "GET",
+                dataType: "json",
+                cache: false,
+                success: function (data) {
+                    if (data != null) {
+                        memberUtils.setBrandInfo(data.id, data.name);
+                        showGlobalBrandName();
+                        getBrandInfo();
+                    } else {
+                        layer.msg(failMsg, {
+                            offset: 't'
+                        });
+                    }
+                }, error: function (xhr, status, error) {
+                    var msg = xhr.responseJSON.message;
+                    layer.msg(msg == null ? failMsg : msg, {
+                        offset: 't'
+                    });
+                }
+            });
+        }
+
+
+        /**
+         * 更新本地当前品牌
+         * @param brandId
+         * @param brandName
+         */
+        function updateLocalMemberCurrentBrandId(brandId, brandName) {
+            memberUtils.setBrandInfo(brandId, brandName);
+            // 重新刷新页面
+            location.reload(true);
+        }
+
+        /**
+         * 显示用户当前所在品牌
+         */
+        function showGlobalBrandName() {
+            var brandName = memberUtils.getBrandName();
+            if (brandName == null || brandName.length <= 0) {
+                brandName = /*[[#{index.switchBrand}]]*/'切换品牌';
+            }
+            $('cite[name="selectBrand"]').text(brandName);
+            getModuleCategoryManagement();
+        }
+
+        /**
+         * 更新服务器端当前品牌
+         */
+        updateServerMemberCurrentBrandId = function (brandId) {
+            var failMsg = /*[[#{error.brand.selectBrand.fail}]]*/'切换品牌失败'
+            $.ajax({
+                url: "/sys/memberSession/updateCurrentBrandId",
+                type: "PUT",
+                data: {brandId: brandId}
+                , dataType: "json",
+                cache: false,
+                success: function (data) {
+                    console.log(data)
+                    if (data != null && data.code == 0) {
+                        updateLocalMemberCurrentBrandId(data.data.id, data.data.name);
+                    } else {
+                        layer.msg(msg, {
+                            icon: 2
+                            , offset: 't'
+                        });
+                    }
+                }, error: function (xhr, status, error) {
+                    var msg = xhr.responseJSON.message;
+                    layer.msg(msg == null ? failMsg : msg, {
+                        icon: 2
+                        , offset: 't'
+                    });
+                }
+            });
+        }
+
+
+        /**
+         * 加载分类
+         * @param $
+         */
+        function getModuleCategoryManagement() {
+            var failMsg = /*[[#{error.brand.initBrand.fail}]]*/'初始化品牌信息失败'
+            // 确定
+            $.ajax({
+                url: "/category/getModuleCategoryManagement",
+                type: "POST",
+                data: {brandId: memberUtils.getBrandId()},
+                dataType: "json",
+                cache: false,
+                success: function (data) {
+                    var brandSellingPoint = '';
+                    var productManagement = '';
+                    $.each(data, function (i, v) {
+                        if (v.type == 1) {
+                            brandSellingPoint += '<dd data-name="param" >\n' +
+                                ' <a lay-href="/category/products/' + v.id + '" >'+v.name+'</a>\n' +
+                                ' </dd>'
+                        } else if (v.type == 2) {
+                            productManagement += '<dd data-name="param" >\n' +
+                                ' <a lay-href="/category/products/' + v.id + '" >'+v.name+'</a>\n' +
+                                ' </dd>'
+                        }
+                    })
+                    $('#brandSellingPoint').html(brandSellingPoint);
+                    $('#productManagement').html(productManagement);
+                }, error: function (xhr, status, error) {
+                    var msg = xhr.responseJSON.message;
+                    layer.msg(msg == null ? failMsg : msg, {
+                        offset: 't'
+                    });
+                }
+            });
+        }
+
+        /**
+         * 获取品牌列表
+         * @param $
+         */
+        function getBrandInfo(){
+            $.ajax({
+                url: "/brand/brandList",
+                type: "POST",
+                data: {brandId: memberUtils.getBrandId()},
+                dataType: "json",
+                cache: false,
+                success: function (data) {
+                    var dd = '';
+                    $.each(data, function (i, v) {
+                        dd += '<dd><a href="javascript:;" onclick="updateServerMemberCurrentBrandId('+v.id+')">'+v.name+'</a></dd>'
+                    })
+                    $('#popupSelectBrand').html(dd);
+                }, error: function (xhr, status, error) {
+                    var msg = xhr.responseJSON.message;
+                    layer.msg(msg == null ? failMsg : msg, {
+                        offset: 't'
+                    });
+                }
+            });
+        }
+    })
+</script>
+</body>
+</html>
+
+
+

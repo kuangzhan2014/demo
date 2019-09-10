@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro"
+      layout:decorate="~{layout.html}">
+<head>
+    <!--<title th:text="(${bean.isNew()} ? '新增公告' : '公告编辑')"></title>-->
+
+    <script type="text/javascript" src="/static/tinymce/tinymce.min.js"></script>
+    <script type="text/javascript" src="/static/jquery/jquery.form.js"></script>
+
+    <script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+        $().ready(function () {
+            // $.validator.addMethod("isNotNull", function (value, elememnt) {
+            //     debugger
+            //     var length = value.length;
+            //     return this.optional(element) || length>0;
+            // }, "不能为空")
+
+            // 表单验证
+            $('#inputForm').validate({
+                ignore: ":hidden:not(select)", //解决无法校验select
+                rules: {
+                    title: {
+                        required: true
+                    },
+                    // content: {
+                    //     required: true,
+                    //     isNotNull: true,
+                    // }
+                },
+                messages: {}
+            });
+        });
+
+        function getAttachment() {
+            return $('input[name="attachment"]').val();
+        }
+
+        function setAttachment(value) {
+            return $('input[name="attachment"]').val(value);
+        }
+
+        function getId() {
+            return $('input[name="id"]').val();
+        }
+    </script>
+
+    <script type="text/javascript" th:inline="javascript">
+
+        var fileCount = 0; // 上传文件数
+
+        $(function () {
+
+            // fileCount = $('input[name="fileSize"]').val();
+            //
+            // // 根据稿件类型显示稿件元素
+            // showByDraftType($('input[name="draftType"]').val());
+            // 富文本：商品详情
+            tinymce.init({
+                selector: 'textarea[name="content"]'
+                ,
+                convert_urls: false // 禁止tinymce不转化URL为相对路径
+                ,
+                indentation: '2em'
+                ,
+                language: "zh_CN"
+                ,
+                height: 300,
+                theme: "modern"
+                , entity_encoding: "raw"
+                ,
+                plugins:
+                    [
+                        "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
+                        "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
+                        "save table contextmenu directionality emoticons template paste textcolor previewcontent uploadimage textindent"
+                    ]
+                ,
+                toolbar1: "insertfile undo redo | styleselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | fontselect fontsizeselect "
+                ,
+                toolbar2: "forecolor backcolor emoticons | bullist numlist | outdent indent | removeformat | link unlink image | fullscreen preview | textindent "
+                ,
+                upload_image_url: '/upload/tinyMCEUploadImage'
+                // , contentUrl: 'http://api.chaoliuheishi.com/api/web/products/' + getProductId() + '/detail'
+                // ,images_upload_base_path: '/some/basepath'
+                ,
+                images_upload_credentials: true
+                ,
+                images_upload_handler: function (blobInfo, success, failure) {
+                    console.log(blobInfo);
+                    var xhr, formData;
+                    xhr = new XMLHttpRequest();
+                    xhr.withCredentials = false;
+                    xhr.open('POST', '/upload/tinyMCEUploadImage');
+                    xhr.onload = function () {
+                        var json;
+                        if (xhr.status != 200) {
+                            failure('HTTP Error: ' + xhr.status);
+                            return;
+                        }
+                        json = JSON.parse(xhr.responseText);
+
+                        if (!json || typeof json.location != 'string') {
+                            failure('Invalid JSON: ' + xhr.responseText);
+                            return;
+                        }
+                        success(json.location);
+                    };
+                    formData = new FormData();
+                    formData.append('file', blobInfo.blob(), blobInfo.filename());
+                    // formData.append('file', blobInfo.blob());
+                    // formData.append('file', blobInfo.blob(), fileName(blobInfo));
+                    xhr.send(formData);
+                }
+            });
+        })
+
+        layui.use(['form', 'upload', 'laydate', 'layedit'], function () {
+            var laydate = layui.laydate
+                , form = layui.form
+                , upload = layui.upload;
+
+            laydate.render({
+                elem: '#publishTime' //指定元素
+                , type: 'date'
+            });
+
+            form.on('submit(submitBtn)', function (data) {
+                var field = data.field;
+            });
+
+            upload.render({
+                elem: '#uploadFileBtn'
+                ,
+                url: '/upload/file'
+                ,
+                accept: 'file'
+                ,
+                acceptMime: 'file/zip, file/rar, file/7z, file/doc, file/docx, file/xls, file/xlsx, file/xml, file/pdf'
+                ,
+                exts: 'zip|rar|7z|doc|docx|xls|xlsx|xml|pdf'
+                ,
+                size: 1024 * 10
+                ,
+                before: function (obj) { //obj参数包含的信息，跟 choose回调完全一致，可参见上文。
+                    layer.load(); //上传loading
+                }
+                ,
+                done: function (result, index, upload) {
+                    layer.closeAll('loading'); //关闭loading
+                    if (result.code == 0) {
+                        fileCount++;
+                        var fileBean = result.data;
+                        var attachment = getAttachment();
+                        var attachmentObj = [];
+                        if (attachment != null && attachment.length > 0) {
+                            attachmentObj = JSON.parse(attachment);
+                        }
+                        var temp = {};
+                        temp['title'] = fileBean.title;
+                        temp['relativePath'] = fileBean.relativePath;
+                        attachmentObj.push(temp);
+                        setAttachment(JSON.stringify(attachmentObj));
+                        appendFile2Layout(fileBean, fileCount);
+                    } else {
+                        layer.msg('上传失败!');
+                    }
+                }
+                ,
+                error: function (index, upload) {
+                    layer.closeAll('loading'); //关闭loading
+                }
+            });
+
+            /**
+             * 将上传附件显示到界面
+             * @param fileBean
+             */
+            function appendFile2Layout(fileBean, fileCount) {
+                var $attachmentWrap = $('div[name="attachmentWrap"]');
+                var html = '<div class="layui-row" th:each="fileBean, stat : *{fileBeanList}">\n' +
+                    '			<div class="layui-col-xs12 layui-col-sm12 layui-col-md12">\n' +
+                    '				附件<span>' + fileCount + '</span>: <a style="color: #01AAED;"\n' +
+                    '				href="' + fileBean.src + '">' + fileBean.title + '</a>\n' +
+                    '			</div>\n' +
+                    '		</div>';
+                $attachmentWrap.append(html);
+                form.render();
+            }
+
+        });
+
+    </script>
+
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <!--<div class="layui-card-header" th:text="(${bean.isNew()} ? '新增公告' : '公告编辑')"></div>-->
+        <div class="layui-card-body">
+            <form id="inputForm" class="layui-form" action="save" method="post" th:object="${bean}">
+                <input type="hidden" th:field="*{id}"/>
+                <inpui typr="hidden" th:field="*{status}"/>
+                <input type="hidden" th:field="*{brandId}"/>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{common.field.title}"></label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{title}" autocomplete="off"
+                               class="layui-input" style="width: 800px;" id="title" name="title"
+                               maxlength="200"/>
+                    </div>
+                </div>
+                <div class="layui-form-item" name="contentWrap">
+                    <label class="layui-form-label" th:text="#{common.field.content}"></label>
+                    <div class="layui-input-inline col-md" style="width: 800px;">
+                        <textarea th:field="*{content}"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit="" lay-filter="submitBtn"
+                                th:text="#{common.btn.submit}"></button>
+                        <button type="button" class="layui-btn layui-btn-primary"
+                                onclick="history.back(); return false;" th:text="#{common.btn.back}">
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

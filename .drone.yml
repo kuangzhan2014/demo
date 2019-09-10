@@ -1,0 +1,22 @@
+pipeline:
+  rsync_dev:
+    image: drillster/drone-rsync
+    user: root
+    hosts:
+    - 192.168.100.11
+    port: 22
+    source: .
+    target: ~/demo
+    exclude:
+    - .git
+    secrets: [ rsync_key ]
+    recursive: true
+    delete: true
+    script:
+    - cd ~/demo
+    - mvn clean install package
+    - export SPRING_PROFILES_ACTIVE=dev
+    - export JAVA_OPTS="-Xms64m -Xmx256m"
+    - docker-compose up --build -d
+    when:
+      branch: develop

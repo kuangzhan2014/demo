@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="#{ui.material.echarts}"></title>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <form id="listForm" lay-filter="listForm" class="layui-form layui-card-header layuiadmin-card-header-auto"
+              action="#" method="get" th:object="${bean}">
+            <input type="hidden" th:field="*{id}">
+            <div id="controlBar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <input readonly type="text" id="yearMonth" autocomplete="off"
+                               class="layui-input" maxlength="200"/>
+                    </div>
+                    <div class="layui-inline" id="searchBtn" style="margin-right: 0px">
+                        <button class="layui-btn" value="搜索" lay-submit="" lay-filter="search" id="seachButton">搜索
+                        </button>
+                    </div>
+                    <button type="button" class="layui-btn layui-btn-primary"
+                            th:text="#{common.btn.back}" style="float: right;margin: 3px 0 0 0;"
+                            onclick="history.back(); return false;">
+                    </button>
+                </div>
+            </div>
+        </form>
+        <div class="layui-card-body">
+            <div class="layui-tab-item layui-show">
+                <div class="layui-row layui-col-space15">
+                    <div class="layui-col-sm12 layui-col-md12" id="downloadCount" style="height: 500px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+
+
+    layui.use(['index', 'echarts', 'laydate','form', 'memberUtils'], function () {
+        var laydate = layui.laydate
+            , echarts = layui.echarts
+            , form = layui.form
+            , memberUtils = layui.memberUtils;
+
+        renderDateMonth()
+
+        // 基于准备好的dom，初始化echarts实例
+        var chart = echarts.init(document.getElementById('downloadCount'))
+            , downloadCount = /*[[#{ui.material.echarts.downloads}]]*/'下载量'
+            , only = /*[[#{ui.material.echarts.forReferenceOnly}]]*/'仅供参考'
+        var materialId = $('#id').val()
+
+        form.render()
+
+        $(function () {
+            $.ajax({
+                url: "/material/echarts",
+                type: "GET",
+                dataType: "json"
+                , data: {id: materialId}
+                , cache: false
+                , success: function (data) {
+                    initAndShowChart(data.date, data.dateArr, data.downloadCountArr)
+                }
+                , error: function (xhr, status, error) {
+                    var msg = xhr.responseJSON.message;
+                    layer.msg(msg == null ? '统计失败' : msg, {
+                        offset: 't',
+                        icon: 2
+                    });
+                }
+            });
+        })
+
+        form.on('submit(search)', function (data) {
+            var yearMonth = $('#yearMonth').val()
+            $.ajax({
+                url: "/material/echarts",
+                type: "GET",
+                dataType: "json"
+                , data: {id: materialId,date:yearMonth}
+                , cache: false
+                , success: function (data) {
+                    initAndShowChart(data.date, data.dateArr, data.downloadCountArr)
+                }
+                , error: function (xhr, status, error) {
+                    var msg = xhr.responseJSON.message;
+                    layer.msg(msg == null ? '统计失败' : msg, {
+                        offset: 't',
+                        icon: 2
+                    });
+                }
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+
+        $(window).resize(function () {
+            chart.resize();
+        });
+
+        /**
+         * 初始化或显示图表
+         */
+        function initAndShowChart(date, dateArr, downloadCountArr) {
+            $('#yearMonth').val(date)
+            var option = {
+                color: ['#3398DB'],
+                title: {
+                    text: date + ' ' + downloadCount,
+                    subtext: only
+                },
+                toolbox: {
+                    show: true,
+                    feature: {
+                        mark: {show: true},
+                        dataView: {show: true, readOnly: false},
+                        magicType: {show: true, type: ['line', 'bar']},
+                        restore: {show: true},
+                        saveAsImage: {show: true}
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: dateArr
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value'
+                    }
+                ],
+                series: [
+                    {
+                        name: '',
+                        type: 'bar',
+                        data: downloadCountArr,
+                        markPoint: {
+                            data: [
+                                {type: 'max'}
+                            ]
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+
+
+
+        function renderDateMonth() {
+            var language = memberUtils.getLanguage();
+
+            var timeDate;
+            if ("zh_CN" == language || null == language) {
+                timeDate = {
+                    elem: '#yearMonth'
+                    , type: 'month'
+                    ,trigger: 'click'
+                    , btns: ['now','confirm']
+                }
+            } else {
+                timeDate = {
+                    elem: '#yearMonth'
+                    , type: 'month'
+                    , lang: 'en'
+                    ,trigger: 'click'
+                    , btns: ['now','confirm']
+                }
+            }
+
+            //年月选择器
+            laydate.render(timeDate);
+        }
+
+
+    });
+</script>
+
+</body>
+</html>

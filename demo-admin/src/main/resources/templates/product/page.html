@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"  xmlns:shiro="http://www.pollix.at/thymeleaf/shiro"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="#{module.productManagement}"></title>
+
+    <style>
+        .layui-table-cell {
+            height: 56px;
+            line-height: 56px;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <form id="listForm" lay-filter="listForm" class="layui-form layui-card-header layuiadmin-card-header-auto"
+              action="#" method="get" th:object="${bean}">
+            <div id="controlBar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <input type="text" placeholder="" th:field="*{name}" autocomplete="off"
+                               class="layui-input"
+                               maxlength="200"/>
+                    </div>
+                    <div class="layui-inline" id="searchBtn" style="margin-right: 0px">
+                        <button class="layui-btn" th:value="#{common.btn.search}" id="seachButton" th:text="#{common.btn.search}"></button>
+                        <button name="resetSearchButton" class="layui-btn layui-btn-primary" th:value="#{common.btn.reset}" type="button" th:text="#{common.btn.reset}">
+                        </button>
+                    </div>
+                </div>
+
+                <div class="layui-btn-group">
+                    <a class="layui-btn" href="add">
+                        <i class="layui-icon layuiadmin-button-btn">&#xe61f;</i>
+                        <span th:text="#{common.btn.add(#{entity.product})}"></span>
+                    </a>
+                </div>
+            </div>
+        </form>
+
+        <script id="productPictureTemplet" type="text/html">
+            <div><img style="max-height: 56px; max-width: 85px;" src="{{ d.productPictureUrl}}"></div>
+        </script>
+
+        <script id="descriptionTemplet" type="text/html">
+            <div><span >{{ d.description}}</span></div>
+        </script>
+        <script id="formulaTemplet" type="text/html">
+            <div><span >{{ d.formula}}</span></div>
+        </script>
+
+        <script id="operationToolbarTemplet" type="text/html">
+            <a class="layui-btn layui-btn-xs" lay-event="edit" th:text="#{common.btn.edit}" href="edit?id={{d.id}}"></a>
+            <a class="layui-btn layui-btn-xs layui-btn-warm" lay-event="delete" th:text="#{common.btn.delete}"></a>
+        </script>
+
+        <div class="layui-card-body">
+            <table id="dataTable" lay-filter="dataTable"></table>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+
+    layui.use(['table',  'form', 'util', 'memberUtils'], function () {
+        var table = layui.table
+            , util = layui.util
+            , form = layui.form
+            , memberUtils = layui.memberUtils;
+
+        var filter = {
+            orderField: 'createDate',
+            orderDirection: 'desc'
+        };
+
+        var buttonSubmit=/*[[#{common.btn.submit}]]*/'提交'
+        var buttonReturn=/*[[#{common.btn.back}]]*/'返回'
+        var responseFail=/*[[#{common.response.fail}]]*/'操作失败！'
+        var buttonDelete=/*[[#{common.btn.delete}]]*/'删除'
+        var confirmMsgDelete=/*[[#{confirm.msg.delete}]]*/'确认删除该条数据？'
+
+        function tableRender(){
+            var options = {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+                , where: filter
+            };
+            if (filter.orderField) {
+                filter.initSort = {
+                    field: filter.orderField,
+                    type: filter.orderDirection
+                };
+            }
+            table.reload('dataTable', options);
+        }
+
+        // 提交时汇总过滤器信息
+        $('#listForm').submit(function () {
+            // 获取表单条件
+            getFilter();
+            // 保存表单数据
+            sessionStorage.setItem(location.pathname + '_filter', JSON.stringify(filter));
+            // 重新搜索，hash保存的页码置为1
+            location.hash = '#!page=1';
+
+            tableRender();
+            return false;
+        });
+
+
+        //formTest 即 class="layui-form" 所在元素对应的 lay-filter="" 对应的值
+        // 保单重新赋值
+        var temp = JSON.parse(sessionStorage.getItem(location.pathname + '_filter'));
+        form.val("listForm", temp);
+
+        getFilter();
+
+        table.render({
+            elem: '#dataTable'
+            , url: '/product/pageData'
+            , initSort: {
+                field: 'createDate' //排序字段，对应 cols 设定的各字段名
+                , type: 'desc' //排序方式  asc: 升序、desc: 降序、null: 默认排序
+            }
+            , where: filter
+            , cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+            , page: {
+                // curr: location.hash.replace('#page=', '') //获取起始页
+                curr: location.hash.replace('#!page=', '') //获取起始页
+                , hash: 'page' //自定义hash值
+            } //开启分页
+            , even: true
+            , cols: [
+                [
+                    {field: 'id',title: /*[[#{common.field.id}]]*/'序号', width: 100}
+                    , {field: 'name', title: /*[[#{category.name}]]*/'名称', width:100}
+                    , {
+                    title: /*[[#{producct.productPicture}]]*/'产品图片',
+                    templet: '#productPictureTemplet',
+                    align: 'center',
+                    width: 130
+                    }
+                    , {title: /*[[#{product.description}]]*/'产品描述',templet: '#descriptionTemplet',}
+                    , {title: /*[[#{product.formula}]]*/'产品配方',templet: '#formulaTemplet',}
+                    , {
+                    field: 'createDate', title: /*[[#{common.field.createDate}]]*/'创建时间', templet: function (d) {
+                        return util.toDateString(d.createDate)
+                    }, width: 160
+                }
+                    , {title: /*[[#{common.operation}]]*/'操作', toolbar: '#operationToolbarTemplet', align: 'center', fixed: 'right', width: 120}
+                ]
+            ]
+        });
+
+        table.on('sort(dataTable)', function (obj) {
+            filter.orderField = obj.field;
+            filter.orderDirection = obj.type;
+            table.reload('dataTable', {
+                initSort: obj //记录初始排序，无如果不设的话，将无法标记表头的排序状态。 layui 2.1.1 新增参数
+                , where: filter
+            });
+        });
+
+        // 搜索条件重置
+        $('button[name="resetSearchButton"]').on('click', function () {
+            $('#controlBar input').val('');
+            $('#controlBar select').val('');
+            $('#listForm').submit(); // 重新提交表单
+        })
+
+        //监听工具条
+        table.on('tool(dataTable)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'delete') {
+                layer.confirm(confirmMsgDelete, {icon: 3, title: buttonDelete, btn: [buttonSubmit, buttonReturn]}, function (index, layero) {
+                    layer.close(index);
+                    // 确定
+                    $.ajax({
+                        url: "delete",
+                        type: "POST",
+                        data: {id: data.id},
+                        dataType: "json",
+                        cache: false,
+                        success: function (data) {
+                            if (data != null && data.code == 0) {
+                                tableRender();
+                            } else {
+                                layer.msg(responseFail)
+                            }
+                        }, error:function(xhr, status, error) {
+                            var msg = xhr.responseJSON.message;
+                            layer.msg(msg == null ? responseFail : msg);
+                            // console.log(xhr);
+                            // console.log(status);
+                            // console.log(error);
+                        }
+                    });
+                }, function (index) {
+                    // 取消
+                    layer.close(index);
+                });
+            }
+        });
+
+        function getFilter() {
+            var searchFields = $('#listForm').serializeArray();
+            for (var i = 0; i < searchFields.length; i++) {
+                var field = searchFields[i];
+                if (field.name) {
+                    filter[field.name] = field.value;
+                }
+            }
+            filter['brandId']= memberUtils.getBrandId();
+            return filter;
+        }
+    });
+
+</script>
+
+</body>
+</html>

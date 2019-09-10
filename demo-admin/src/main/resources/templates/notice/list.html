@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="#{module.marketVision.notice}"></title>
+
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <form id="listForm" lay-filter="listForm" class="layui-form layui-card-header layuiadmin-card-header-auto" action="#" method="get" th:object="${bean}">
+
+            <div id="controlBar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" th:placeholder="#{common.field.title}" th:field="*{title}" autocomplete="off"
+                                   class="layui-input"
+                                   maxlength="200"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline" id="searchBtn" style="margin-right: 0px">
+                        <button class="layui-btn" value="" id="seachButton" th:text="#{common.btn.search}"></button>
+                    </div>
+                    <div class="layui-inline">
+                        <button name="resetSearchButton" class="layui-btn layui-btn-primary" value="" type="button" th:text="#{common.btn.reset}">
+                        </button>
+                    </div>
+                </div>
+
+                <div class="layui-btn-group" shiro:hasPermission="notice:management">
+                    <a class="layui-btn" href="add">
+                        <i class="layui-icon layuiadmin-button-btn" >&#xe61f;</i>
+                        <span th:text="#{common.btn.add(#{entity.notice})}"></span>
+                    </a>
+                </div>
+            </div>
+
+            <script id="operationToolbarTemplet" type="text/html">
+                <a class="layui-btn layui-btn-xs" lay-event="detail"  th:text="#{common.btn.detail}"></a>
+                <a class="layui-btn layui-btn-warm layui-btn-xs" shiro:hasPermission="notice:management" lay-event="edit" href="edit?id={{d.id}}" th:text="#{common.btn.edit}"></a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" shiro:hasPermission="notice:management" lay-event="delete" th:text="#{common.btn.delete}"></a>
+            </script>
+
+        </form>
+
+        <div class="layui-card-body">
+
+            <table id="dataTable" lay-filter="dataTable"></table>
+            <!--<div id="pagination"></div>-->
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+
+    layui.use(['table', 'laydate', 'form', 'util'], function () {
+        var table = layui.table
+            , laydate = layui.laydate
+            , util = layui.util
+            , form = layui.form;
+
+        var filter = {
+            orderField: null,
+            orderDirection: null
+        };
+
+        var buttonSubmit=/*[[#{common.btn.submit}]]*/'提交'
+        var buttonReturn=/*[[#{common.btn.back}]]*/'返回'
+        var responseFail=/*[[#{common.response.fail}]]*/'操作失败！'
+        var buttonDelete=/*[[#{common.btn.delete}]]*/'删除'
+        var confirmMsgDelete=/*[[#{confirm.msg.delete}]]*/'确认删除该条数据？'
+        // 提交时汇总过滤器信息
+        $('#listForm').submit(function () {
+            // 获取表单条件
+            getFilter();
+            // 保存表单数据
+            sessionStorage.setItem(location.pathname + '_filter', JSON.stringify(filter));
+            // 重新搜索，hash保存的页码置为1
+            location.hash = '#!page=1';
+            var options = {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+                , where: filter
+            };
+            if (filter.orderField) {
+                filter.initSort = {
+                    field: filter.orderField,
+                    type: filter.orderDirection
+                };
+            }
+            table.reload('dataTable', options);
+            return false;
+        });
+
+        //formTest 即 class="layui-form" 所在元素对应的 lay-filter="" 对应的值
+        // 保单重新赋值
+        var temp = JSON.parse(sessionStorage.getItem(location.pathname + '_filter'));
+        form.val("listForm", temp);
+
+        getFilter();
+
+        table.render({
+            elem: '#dataTable'
+            , url: 'pageData'
+            , where: filter
+            , cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+            , page: {
+                // curr: location.hash.replace('#page=', '') //获取起始页
+                curr: location.hash.replace('#!page=', '') //获取起始页
+                ,hash: 'page' //自定义hash值
+            } //开启分页
+            , even: true
+            , cols: [
+                [
+                    {title: /*[[#{common.field.id}]]*/'序号',field:'id', width: 80}
+                    , {title: /*[[#{common.field.title}]]*/ '标题', field: 'title'}
+                    , {title: /*[[#{common.field.content}]]*/ '内容', field: 'content',width:300}
+                    , { title: /*[[#{common.field.createDate}]]*/'创建时间',
+                    field: 'createDate',sort: true, templet: function (d) {
+                        return util.toDateString(d.createDate, 'yyyy-MM-dd HH:mm:ss');
+                    }, width: 160
+                }
+                    , {title: /*[[#{common.operation}]]*/'操作', toolbar: '#operationToolbarTemplet', align: 'center', fixed: 'right', width: 180}
+                ]
+            ]
+        });
+
+        table.on('sort(dataTable)', function (obj) {
+            filter.OrderByField = obj.field;
+            filter.orderDirection = obj.type;
+            table.reload('dataTable', {
+                initSort: obj //记录初始排序，无如果不设的话，将无法标记表头的排序状态。 layui 2.1.1 新增参数
+                , where: filter
+            });
+        });
+
+        //监听工具条
+        table.on('tool(dataTable)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'delete'){
+                layer.confirm(confirmMsgDelete, {icon: 3, title: buttonDelete, btn: [buttonSubmit, buttonReturn]}, function (index, layero) {
+                    layer.close(index);
+                    // 确定
+                    $.ajax({
+                        url: "delete",
+                        type: "POST",
+                        data: {id: data.id},
+                        dataType: "json",
+                        cache: false,
+                        success: function (data) {
+                            if(data.code == 0) {
+                                location.reload(true);
+                            } else {
+                                layer.msg(responseFail)
+                            }
+                        }, error:function(xhr, status, error) {
+                            var msg = xhr.responseJSON.message;
+                            layer.msg(msg == null ? responseFail : msg);
+                            // console.log(xhr);
+                            // console.log(status);
+                            // console.log(error);
+                        }
+                    });
+                }, function (index) {
+                    // 取消
+                    layer.close(index);
+                });
+            }
+            else if(obj.event === 'detail') { // 详情
+                layer.open({
+                    type: 2 //Page层类型
+                    , area:['850px','500px']
+                    , title: false
+                    , shade: 0.6 //遮罩透明度
+                    , anim: -1 //0-6的动画形式，-1不开启
+                    , content: '/notice/detail?id=' + data.id
+                });
+            }
+        });
+
+        // 搜索日期
+        laydate.render({
+            elem: '#dateRange'
+            , type: 'datetime'
+            , range: '~'
+        })
+
+        // 搜索条件重置
+        $('button[name="resetSearchButton"]').on('click', function () {
+            $('#controlBar input').val('');
+            $('#controlBar select').val('');
+            $('#listForm').submit(); // 重新提交表单
+        })
+        
+        function getFilter() {
+            var searchFields = $('#listForm').serializeArray();
+            for (var i = 0; i < searchFields.length; i++) {
+                var field = searchFields[i];
+                if (field.name) {
+                    filter[field.name] = field.value;
+                }
+            }
+            return filter;
+        }
+
+    });
+
+</script>
+
+</body>
+</html>

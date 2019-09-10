@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title>权限列表</title>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <form id="listForm" class="layui-form layui-card-header layuiadmin-card-header-auto" action="#" method="get">
+
+            <div id="controlBar">
+                <div class="layui-btn-group">
+                    <a class="layui-btn" href="add">
+                        <i class="layui-icon layuiadmin-button-btn">&#xe61f;</i>添加权限
+                    </a>
+                    <button id="deleteButton" class="layui-btn">
+                        <i class="layui-icon layui-icon-delete layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+
+                <div id="searchBar" class="layui-inline" style="float:right">
+                    <div class="layui-input-inline" style="width: 100px;">
+                        <select id="searchProperty" name="searchProperty">
+                            <option value="">搜索条件</option>
+                            <option value="t.name" th:selected="${searchProperty == 't.name'}">权限名</option>
+                            <option value="t.permission_value" th:selected="${searchProperty == 't.permission_value'}">权限值</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" id="searchValue" name="searchValue" th:value="${searchValue}" autocomplete="off" class="layui-input">
+                    </div>
+                    <div class="layui-input-inline">
+                        <button class="layui-btn" value="搜索" type="submit">搜索</button>
+                    </div>
+                    <div class="layui-input-inline">
+                        <button id="resetSearchButton" class="layui-btn layui-btn-primary" value="重置" type="button">重置</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="layui-card-body layui-form">
+            <table id="listTable" class="layui-table" lay-skin="line" >
+                <colgroup>
+                    <col width="50">
+                    <col>
+                    <col>
+                    <col>
+                    <col>
+                    <col width="140">
+                </colgroup>
+                <thead>
+                <tr>
+                    <th align="center"><input id="selectAll" lay-filter="selectAll" type="checkbox" lay-skin="primary"></th>
+                    <th>权限名</th>
+                    <th>权限值</th>
+                    <th>父权限</th>
+                    <th>权限描述</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="perm : ${permissions}">
+                    <td><input type="checkbox" name="ids" lay-filter="ids" lay-skin="primary" th:value="${perm.id}"></td>
+                    <td th:text="${perm.name}"></td>
+                    <td th:text="${perm.permissionValue}"></td>
+                    <td th:text="${perm.parent?.name}"></td>
+                    <td th:text="${perm.description}"></td>
+                    <td>
+                        <a class="layui-btn layui-btn-xs layui-btn-warm" th:href="@{/sys/permission/edit(id=${perm.id})}">编辑</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+    layui.use('table_list', function(){
+        var tableList = layui.table_list;
+
+    });
+</script>
+</body>
+</html>
+

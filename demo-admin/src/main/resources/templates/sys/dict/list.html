@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title>字典列表</title>
+</head>
+<body>
+    <div class="layui-fluid" layout:fragment="content">
+        <div class="layui-card">
+            <form id="listForm" class="layui-form layui-card-header layuiadmin-card-header-auto" action="#" method="get">
+                <input type="hidden" id="pageNumber" name="current" th:value="${page.current}" />
+                <input type="hidden" id="pageSize" name="size" th:value="${page.size}" />
+
+                <div id="controlBar">
+                    <div class="layui-btn-group">
+                    </div>
+
+                    <div id="searchBar" class="layui-inline" style="float:right">
+                        <div class="layui-input-inline" style="width: 100px;">
+                            <select id="searchProperty" name="searchProperty">
+                                <option value="">搜索条件</option>
+                                <option value="dict_group" th:selected="${searchProperty == 'dict_group'}">字典组</option>
+                                <option value="code_label" th:selected="${searchProperty == 'code_label'}">值标签</option>
+                            </select>
+                        </div>
+                        <div class="layui-input-inline">
+                            <input type="text" id="searchValue" name="searchValue" th:value="${searchValue}" autocomplete="off" class="layui-input">
+                        </div>
+                        <div class="layui-input-inline">
+                            <button class="layui-btn" value="搜索" type="submit">搜索</button>
+                        </div>
+                        <div class="layui-input-inline">
+                            <button id="resetSearchButton" class="layui-btn layui-btn-primary" value="重置" type="button">重置</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="layui-card-body">
+
+                <table id="listTable" class="layui-table" lay-skin="line" >
+                    <colgroup>
+                        <col>
+                        <col>
+                        <col>
+                        <col width="140">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>字典组</th>
+                        <th>编码值</th>
+                        <th>值标签</th>
+                        <th>排序</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="dict : ${page.records}">
+                        <td th:text="${dict.dictGroup}"></td>
+                        <td th:text="${dict.code}"></td>
+                        <td th:text="${dict.codeLabel}"></td>
+                        <td th:text="${dict.sort}"></td>
+                        <td>
+                            <a class="layui-btn layui-btn-xs layui-btn-warm" th:href="@{/sys/dict/edit(id=${dict.id})}">编辑</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div id="pagination">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+        layui.use('table_list', function(){
+            var tableList = layui.table_list;
+
+            tableList.init({
+                curr: '[(${page.current})]',
+                count: '[(${page.total})]',
+                limit: '[(${page.size})]'
+            });
+
+        });
+    </script>
+</body>
+</html>
+

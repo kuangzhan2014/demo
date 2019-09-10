@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="${bean.isNew()} ? '添加' : '编辑' + '字典标签'">字典标签</title>
+
+    <script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+        $().ready(function() {
+
+            // 表单验证
+            $('#inputForm').validate({
+                rules: {
+                    codeLabel: {
+                        required: true
+                    }
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <div class="layui-card-header" th:text="${bean.isNew()} ? '添加' : '编辑' + '字典标签'"></div>
+        <div class="layui-card-body">
+            <form id="inputForm" class="layui-form" action="update" method="post" th:object="${bean}">
+                <input type="hidden" th:field="*{id}" />
+                <div class="layui-form-item">
+                    <label class="layui-form-label">字典组</label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{dictGroup}" class="layui-input" maxlength="200" readonly="true" disabled="true" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">编码值</label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{code}" class="layui-input" maxlength="200" readonly="true" disabled="true" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">值标签</label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{codeLabel}" class="layui-input" maxlength="200"  />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">排序</label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{sort}" class="layui-input" maxlength="200"  />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit="" lay-filter="demo1">提交</button>
+                        <button type="button" class="layui-btn layui-btn-primary" onclick="history.back(); return false;">返回</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="#{module.categoryManagement}"></title>
+    <style>
+        .content-box .layui-form .layui-form-item {
+            margin-bottom: 30%;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <input type="hidden" id="materialId" th:value="${bean.id}">
+    <input type="hidden" id="type" th:value="${bean.type}">
+    <div class="layui-tab-content">
+        <div class="layui-tab-item  layui-show">
+            <div class="content-box">
+                <div class="layui-row  layui-col-space20">
+                    <div class="layui-col-sm9 layui-col-md9 layui-col-lg9">
+                        <img style="max-height: 380px" th:src="${bean.showPictureUrl}"/>
+                    </div>
+                    <div class="layui-col-sm3 layui-col-md3 layui-col-lg3">
+                        <div class="layui-form">
+                            <div class="layui-form-item">
+                                <input type="radio" name="resolution" title="480p" value="ld" checked>
+                                <div class="layui-form-mid layui-word-aux">
+                                    <span th:text="#{ui.material.video.ld}"></span>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <input type="radio" name="resolution" title="720p" value="sd">
+                                <div class="layui-form-mid layui-word-aux">
+                                    <span th:text="#{ui.material.video.sd}"></span>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <input type="radio" name="resolution" title="1080p" value="hd">
+                                <div class="layui-form-mid layui-word-aux">
+                                    <span th:text="#{ui.material.video.hd}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="layui-btn layui-btn-fluid" id="download">下载</button>
+                    </div>
+                </div>
+                <div class="layui-row layui-col-space20">
+                    <div class="layui-col-sm12 layui-col-md12 layui-col-lg12">
+                        <p class="content-title" th:text="${bean.name}"></p>
+                        <p class="content-desc" th:text="${bean.description}">
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+    $('#download').on('click', function () {
+        var materialId = $('#materialId').val();
+        var checkResult = $('input[type="radio"][name="resolution"]:checked').val();
+        window.location.href = "/material/download/" + materialId +'?resolution='+checkResult;
+    })
+    layui.use('form', function() {
+
+    })
+</script>
+</body>
+</html>

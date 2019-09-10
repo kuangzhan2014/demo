@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.maitianer.demo.biz.mapper.MemberMapper">
+
+    <!-- 通用查询结果列-->
+    <sql id="Base_Column_List">
+        m.*
+    </sql>
+
+    <resultMap id="memberWithRoles" type="Member">
+        <id property="id" column="id" />
+        <result property="memberName" column="member_name" />
+        <result property="encryptedPassword" column="encrypted_password" />
+        <result property="passwordSalt" column="password_salt" />
+        <result property="cellphone" column="cellphone" />
+        <result property="phone" column="phone" />
+        <result property="email" column="email" />
+        <result property="realName" column="real_name" />
+        <result property="avatar" column="avatar" />
+        <result property="lastLoginDate" column="last_login_date" />
+        <result property="lastLoginIp" column="last_login_ip" />
+        <result property="status" column="status" />
+        <result property="position" column="position"/>
+        <result property="createDate" column="create_date" />
+        <result property="updateDate" column="update_date" />
+        <collection property="roles" select="selectMemberRoles" column="id" javaType="ArrayList" ofType="Role" />
+    </resultMap>
+
+    <select id="selectMemberRoles" resultType="Role">
+        SELECT r.* FROM sys_role r LEFT JOIN sys_member_role mr on mr.role_id = r.id WHERE mr.member_id = #{id}
+    </select>
+
+    <select id="selectPage" resultMap="memberWithRoles">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM sys_member m
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
+    <select id="pageData" resultType="Member">
+        select m.*,mr.role_id,r.name role_name from sys_member m
+        left join sys_member_role mr on m.id = mr.member_id
+        left join sys_role r on mr.role_id = r.id
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
+</mapper>

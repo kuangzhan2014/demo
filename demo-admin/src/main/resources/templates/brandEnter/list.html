@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="#{module.brandEnterManagement}"></title>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form id="listForm" lay-filter="listForm" class="layui-form layui-card-header layuiadmin-card-header-auto"
+                  action="#" method="get" th:object="${bean}">
+                <div id="controlBar">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <input type="text" th:placeholder="#{brandEnter.brandName}" th:field="*{brandName}"
+                                   autocomplete="off"
+                                   class="layui-input"
+                                   maxlength="200"/>
+                        </div>
+                        <div class="layui-inline">
+                            <input type="text" th:placeholder="#{brandEnter.initiatorName}" th:field="*{initiatorName}"
+                                   autocomplete="off"
+                                   class="layui-input"
+                                   maxlength="200"/>
+                        </div>
+                        <div class="layui-inline">
+                            <input type="text" th:placeholder="#{brandEnter.handlerName}" th:field="*{handlerName}"
+                                   autocomplete="off"
+                                   class="layui-input"
+                                   maxlength="200"/>
+                        </div>
+                        <div class="layui-input-inline">
+                            <select th:field="*{status}" lay-filter="status" lay-search>
+                                <option value=""><span th:text="#{brandEnter.status}"></span></option>
+                                <option th:each="item : ${#dicts.getDictList('brand_enter_status')}"
+                                        th:value="${item.code}" th:text="${item.codeLabel}"></option>
+                            </select>
+                        </div>
+                        <div class="layui-input-inline">
+                            <select th:field="*{result}" lay-filter="result" lay-search>
+                                <option value=""><span th:text="#{brandEnter.result}"></span></option>
+                                <option th:each="item : ${#dicts.getDictList('brand_enter_result')}"
+                                        th:value="${item.code}" th:text="${item.codeLabel}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline" id="searchBtn" style="margin-right: 0px">
+                        <button class="layui-btn" th:value="#{common.btn.search}" id="seachButton"
+                                th:text="#{common.btn.search}"></button>
+                        <button name="resetSearchButton" class="layui-btn layui-btn-primary"
+                                th:value="#{common.btn.reset}" type="button" th:text="#{common.btn.reset}">
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <script id="operationToolbarTemplet" type="text/html">
+                {{# if (d.status == 0) { }}
+                <a class="layui-btn layui-btn-xs" lay-event="pass" th:text="#{common.btn.pass}"></a>
+                <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="notPass"
+                   th:text="#{common.btn.notPass}"></a>
+                {{# } else if(d.result == 1) { }}
+                <a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="cancel"
+                   th:text="#{common.btn.cancelProxy}"></a>
+                {{# } }}
+            </script>
+
+            <div>
+                <table id="dataTable" lay-filter="dataTable"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+
+    layui.use(['table', 'form', 'util', 'memberUtils'], function () {
+        var table = layui.table
+            , util = layui.util
+            , form = layui.form
+            , memberUtils = layui.memberUtils;
+
+        var filter = {
+            orderField: 'createDate',
+            orderDirection: 'desc'
+        };
+
+        var buttonSubmit = /*[[#{common.btn.submit}]]*/'提交'
+        var buttonReturn = /*[[#{common.btn.back}]]*/'返回'
+        var responseFail = /*[[#{common.response.fail}]]*/'操作失败！'
+        var confirmMsgPass = /*[[#{confirm.msg.pass}]]*/'确认通过该申请？'
+        var confirmMsgNotPass = /*[[#{confirm.msg.notPass}]]*/'确认不通过该申请？'
+        var confirmMsgCancelProxy = /*[[#{confirm.msg.cancelProxy}]]*/'确认取消代理？'
+
+        function tableRender() {
+            var options = {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+                , where: filter
+            };
+            if (filter.orderField) {
+                filter.initSort = {
+                    field: filter.orderField,
+                    type: filter.orderDirection
+                };
+            }
+            table.reload('dataTable', options);
+        }
+
+        // 提交时汇总过滤器信息
+        $('#listForm').submit(function () {
+            // 获取表单条件
+            getFilter();
+            // 保存表单数据
+            sessionStorage.setItem(location.pathname + '_filter', JSON.stringify(filter));
+            // 重新搜索，hash保存的页码置为1
+            location.hash = '#!page=1';
+
+            tableRender();
+            return false;
+        });
+
+
+        //formTest 即 class="layui-form" 所在元素对应的 lay-filter="" 对应的值
+        // 保单重新赋值
+        var temp = JSON.parse(sessionStorage.getItem(location.pathname + '_filter'));
+        form.val("listForm", temp);
+
+        getFilter();
+
+        table.render({
+            elem: '#dataTable'
+            , url: '/brandEnter/pageData'
+            , initSort: {
+                field: 'createDate' //排序字段，对应 cols 设定的各字段名
+                , type: 'desc' //排序方式  asc: 升序、desc: 降序、null: 默认排序
+            }
+            , where: filter
+            , cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+            , page: {
+                // curr: location.hash.replace('#page=', '') //获取起始页
+                curr: location.hash.replace('#!page=', '') //获取起始页
+                , hash: 'page' //自定义hash值
+            } //开启分页
+            , even: true
+            , cols: [
+                [
+                    {field: 'id', title: /*[[#{common.field.id}]]*/'序号', width: 100}
+                    , {field: 'brandName', title: /*[[#{brandEnter.brandName}]]*/'品牌名称'}
+                    , {field: 'initiatorName', title: /*[[#{brandEnter.initiatorName}]]*/'申请人名称'}
+                    , {field: 'handlerName', title: /*[[#{brandEnter.handlerName}]]*/'处理人名称'}
+                    , {field: 'statusLabel', title: /*[[#{brandEnter.status}]]*/'处理状态'}
+                    , {field: 'resultLabel', title: /*[[#{brandEnter.result}]]*/'处理结果'}
+                    , {
+                    field: 'createDate', title: /*[[#{common.field.createDate}]]*/'创建时间', templet: function (d) {
+                        return util.toDateString(d.createDate)
+                    }, width: 160
+                }
+                    , {
+                    title: /*[[#{common.operation}]]*/'操作',
+                    toolbar: '#operationToolbarTemplet',
+                    align: 'center',
+                    fixed: 'right',
+                    width: 140
+                }
+                ]
+            ]
+        });
+
+        table.on('sort(dataTable)', function (obj) {
+            filter.orderField = obj.field;
+            filter.orderDirection = obj.type;
+            table.reload('dataTable', {
+                initSort: obj //记录初始排序，无如果不设的话，将无法标记表头的排序状态。 layui 2.1.1 新增参数
+                , where: filter
+            });
+        });
+
+        // 搜索条件重置
+        $('button[name="resetSearchButton"]').on('click', function () {
+            $('#controlBar input').val('');
+            $('#controlBar select').val('');
+            $('#listForm').submit(); // 重新提交表单
+        })
+
+        //监听工具条
+        table.on('tool(dataTable)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'pass') {
+                layer.confirm(confirmMsgPass, {
+                    icon: 3,
+                    title: '',
+                    btn: [buttonSubmit, buttonReturn]
+                }, function (index, layero) {
+                    layer.close(index);
+                    // 确定
+                    $.ajax({
+                        url: "isPass",
+                        type: "POST",
+                        data: {id: data.id, isPass: true},
+                        dataType: "json",
+                        cache: false,
+                        success: function (data) {
+                            if (data != null && data.code == 0) {
+                                tableRender();
+                            } else {
+                                layer.msg(responseFail)
+                            }
+                        }, error: function (xhr, status, error) {
+                            var msg = xhr.responseJSON.message;
+                            layer.msg(msg == null ? responseFail : msg);
+                            // console.log(xhr);
+                            // console.log(status);
+                            // console.log(error);
+                        }
+                    });
+                }, function (index) {
+                    // 取消
+                    layer.close(index);
+                });
+            } else if (obj.event === 'notPass') {
+                layer.confirm(confirmMsgNotPass, {
+                    icon: 3,
+                    title: '',
+                    btn: [buttonSubmit, buttonReturn]
+                }, function (index, layero) {
+                    layer.close(index);
+                    // 确定
+                    $.ajax({
+                        url: "isPass",
+                        type: "POST",
+                        data: {id: data.id, isPass: false},
+                        dataType: "json",
+                        cache: false,
+                        success: function (data) {
+                            if (data != null && data.code == 0) {
+                                tableRender();
+                            } else {
+                                layer.msg(responseFail)
+                            }
+                        }, error: function (xhr, status, error) {
+                            var msg = xhr.responseJSON.message;
+                            layer.msg(msg == null ? responseFail : msg);
+                            // console.log(xhr);
+                            // console.log(status);
+                            // console.log(error);
+                        }
+                    });
+                }, function (index) {
+                    // 取消
+                    layer.close(index);
+                });
+            } else if (obj.event === 'cancel') {
+                layer.confirm(confirmMsgCancelProxy, {
+                    icon: 3,
+                    title: '',
+                    btn: [buttonSubmit, buttonReturn]
+                }, function (index, layero) {
+                    layer.close(index);
+                    // 确定
+                    $.ajax({
+                        url: "isPass",
+                        type: "POST",
+                        data: {id: data.id, isPass:false},
+                        dataType: "json",
+                        cache: false,
+                        success: function (data) {
+                            if (data != null && data.code == 0) {
+                                tableRender();
+                            } else {
+                                layer.msg(responseFail)
+                            }
+                        }, error: function (xhr, status, error) {
+                            var msg = xhr.responseJSON.message;
+                            layer.msg(msg == null ? responseFail : msg);
+                            // console.log(xhr);
+                            // console.log(status);
+                            // console.log(error);
+                        }
+                    });
+                }, function (index) {
+                    // 取消
+                    layer.close(index);
+                });
+            }
+        });
+
+        function getFilter() {
+            var searchFields = $('#listForm').serializeArray();
+            for (var i = 0; i < searchFields.length; i++) {
+                var field = searchFields[i];
+                if (field.name) {
+                    filter[field.name] = field.value;
+                }
+            }
+            return filter;
+        }
+    });
+
+</script>
+
+</body>
+</html>

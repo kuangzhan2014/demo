@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title>地区列表</title>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <form id="listForm" class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <div id="controlBar">
+                <div class="layui-btn-group">
+                    <!--
+                    <a class="layui-btn" href="add">
+                        <i class="layui-icon layuiadmin-button-btn">&#xe61f;</i>添加地区
+                    </a>
+                    <button id="deleteButton" class="layui-btn">
+                        <i class="layui-icon layui-icon-delete layuiadmin-button-btn"></i>
+                    </button>
+                    -->
+                </div>
+
+                <div id="searchBar" class="layui-inline" style="float:right">
+                    <div class="layui-input-inline" style="width: 100px;">
+                        <select id="searchProperty" name="searchProperty">
+                            <option value="">搜索条件</option>
+                            <option value="area_name">名称</option>
+                            <option value="area_code">行政区编号</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" id="searchValue" name="searchValue" autocomplete="off" class="layui-input">
+                    </div>
+                    <div class="layui-input-inline">
+                        <button id="searchButton" class="layui-btn" value="搜索" type="button">搜索</button>
+                    </div>
+                    <div class="layui-input-inline">
+                        <button id="resetSearchButton" class="layui-btn layui-btn-primary" value="重置" type="button">重置
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="layui-card-body">
+            <table class="layui-hidden" id="treeTable" lay-filter="treeTable"></table>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+    var tableId = 'treeTable';
+    layui.use(['treeGrid', 'form'], function () {
+        var treeGrid = layui.treeGrid;
+        var form = layui.form;
+        treeGrid.render({
+            id: tableId
+            , elem: '#' + tableId
+            , idField: 'areaCode'
+            , method: 'get'
+            , url: 'listData'
+            , cellMinWidth: 100
+            , iconOpen: false
+            , isOpenDefault: false
+            , treeId: 'areaCode'//树形id字段名称
+            , treeUpId: 'parentCode'//树形父id字段名称
+            , treeShowName: 'areaName'//以树形式显示的字段
+            , page: false
+            , cols: [[
+                {
+                    field: 'areaName', width: 300, title: '名称', templet: function (d) {
+                        return d.areaName + "（" + d.areaCode + "）";
+                    }
+                }
+                , {field: 'areaTypeLabel', width: 100, title: '类型'}
+                , {field: 'parentCode', title: '父编号'}
+                , {
+                    width: 100, title: '操作', align: 'center'/*toolbar: '#barDemo'*/
+                    , templet: function (d) {
+                        var editBtn = '<a class="layui-btn layui-btn-primary layui-btn-xs" href="edit?id=' + d.id + '">编辑</a>';
+                        var delBtn = '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>';
+                        return editBtn;
+                    }
+                }
+            ]]
+        });
+
+        treeGrid.on('tool(' + tableId + ')', function (obj) {
+            if (obj.event === 'del') {//删除行
+                del(obj);
+            } else if (obj.event === "add") {//添加行
+                add(obj);
+            } else if (obj.event === "edit") {//编辑行
+                edit(obj);
+            }
+        });
+
+        function del(obj) {
+            layer.confirm("你确定删除数据吗？如果存在下级节点则一并删除，此操作不能撤销！", {icon: 3, title: '提示'},
+                function (index) {//确定回调
+                    obj.del();
+                    layer.close(index);
+                }, function (index) {//取消回调
+                    layer.close(index);
+                }
+            );
+        }
+
+        $('#searchButton').click(function () {
+            var searchValue = $('#searchValue').val();
+            var searchProperty = $('#searchProperty').val();
+            if (searchProperty && searchValue) {
+                treeGrid.query(tableId, {
+                    where: {
+                        searchProperty: searchProperty,
+                        searchValue: searchValue
+                    }
+                });
+            }
+        });
+
+        $('#resetSearchButton').click(function () {
+            $('#searchValue').val('');
+            $('#searchProperty').val('');
+            form.render('select');
+            treeGrid.reload(tableId, {
+                page: {
+                    curr: 1
+                }
+            });
+        });
+
+    });
+</script>
+</body>
+</html>
+

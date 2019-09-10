@@ -1,0 +1,32 @@
+server:
+  port: 8081
+  tomcat:
+    use-relative-redirects: true
+
+#logging:
+#  file: logs/epark-admin.log
+
+spring:
+#  mvc:
+#    favicon:
+#      enabled: false
+  profiles:
+    active: dev
+  application:
+    name: demo-admin
+
+shiro:
+  loginUrl: /sys/login
+  successUrl: /index
+  unauthorizedUrl: /403
+  sessionManager:
+    sessionIdUrlRewritingEnabled: false
+  ## 默认一年
+
+  rememberMeManager:
+    shiro:
+      cookie:
+        maxAge: 60 * 60 * 24 * 365
+        secure: false
+
+debug: false

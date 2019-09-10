@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <meta charset="utf-8">
+    <title th:text="#{ui.login.forgetPassword}"></title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" th:href="@{/static/layuiadmin/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/layuiadmin/style/admin.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/layuiadmin/style/login.css}" media="all">
+
+</head>
+<body style="background-color: #FFFFFF">
+
+<div class="layui-fluid" layout:fragment="content" style="padding: 0px ">
+    <div class="layui-card">
+        <div class="layui-card-body" style="padding: auto">
+            <form id="inputForm" class="layui-form">
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{member.email}" style="text-align: center"></label>
+                    <div class="layui-input-inline">
+                        <input type="text" id="email" name="email" class="layui-input" autocomplete="off"
+                               maxlength="200" th:placeholder="#{placeholder.email}"/>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+
+    function inputFormValidate() {
+        // 表单验证
+        return $('#inputForm').validate({
+            ignore: ":hidden:not(select)" //解决无法校验select
+            , rules: {
+                email: {
+                    required: true,
+                    email: true,
+                    remote: {
+                        url: '/sys/member/checkEmail'
+                        , type: 'GET'
+                        , dataType: 'JSON'
+                        , async: false
+                        , cache: false
+                        , data: {
+                            email: function () {
+                                return $('input[name="email"]').val();
+                            }
+                        }
+                        , dataFilter: function (data) {
+                            if (data == "false") {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            },
+            messages: {
+                email: {
+                    remote: /*[[#{UnknownEmailException}]]*/ "该邮箱已存在！"
+                },
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

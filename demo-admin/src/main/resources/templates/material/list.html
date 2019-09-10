@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="#{entity.material}"></title>
+
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <!--<p style="margin-bottom: 10px">-->
+    <!--<span class="layui-breadcrumb">-->
+    <!--<a href="/sys/indexFrame" th:text="#{index.home}"></a>-->
+    <!--<a href="javascript:;" id="category" th:text="#{entity.category}"></a>-->
+    <!--<a><cite th:text="${bean.typeLabel}"></cite></a>-->
+    <!--</span>-->
+    <!--</p>-->
+    <form id="listForm" lay-filter="listForm" class="layui-form"
+          action="#" method="get">
+        <input type="hidden" th:field="${bean.categoryId}">
+        <input type="hidden" th:field="${bean.productId}">
+        <input type="hidden" th:field="${bean.type}">
+        <div id="controlBar">
+            <div class="layui-card">
+                <div class="layui-card-header layuiadmin-card-header-auto">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" placeholder="名称" th:field="${bean.name}" autocomplete="off"
+                                   class="layui-input" maxlength="200"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline" id="searchBtn" style="margin-right: 0px">
+                        <button class="layui-btn" id="seachButton" th:text="#{common.btn.search}"></button>
+                    </div>
+                    <div class="layui-inline">
+                        <button name="resetSearchButton" class="layui-btn layui-btn-primary" th:text="#{common.btn.reset}"
+                                type="button">
+                        </button>
+                    </div>
+                    <button style="float:right;" type="button" class="layui-btn"
+                            onclick="history.back(); return false;" th:text="#{common.btn.back}">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this" th:text="${bean.typeLabel}"></li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-row layui-col-space25 content-list" id="contentList">
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+
+    var categoryId = $('#categoryId').val();
+    var productId = $('#productId').val();
+    var type = $('#type').val();
+
+
+    function detail(id) {
+        layer.open({
+            type: 2 //Page层类型
+            , area: ['850px', '500px']
+            , title: false
+            , shade: 0.6 //遮罩透明度
+            , anim: -1 //0-6的动画形式，-1不开启
+            , content: '/material/detail?id=' + id + '&type' + type
+        });
+    }
+
+
+    layui.use(['flow', 'memberUtils'], function () {
+        var flow = layui.flow
+            , memberUtils = layui.memberUtils;
+
+        var brandId = memberUtils.getBrandId();
+        var name = $('#name').val();
+        flow.load({
+            elem: '#contentList' //指定列表容器
+            , end: /*[[#{common.load.end}]]*/'没有更多了'
+            , isLazyimg: true
+            , done: function (page, next) { //到达临界点（默认滚动触发），触发下一页
+                var lis = [];
+                //以jQuery的Ajax请求为例，请求下一页数据（注意：page是从2开始返回）
+                $.get('/material/listData?current=' + page + '&categoryId=' + categoryId +
+                    '&productId=' + productId + '&type=' + type + '&name=' + name +
+                    '&brandId=' + brandId, function (res) {
+                    //假设你的列表返回在data集合中
+                    layui.each(res.records, function (index, item) {
+                        var cc = '<div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item">\n' +
+                            '                <a href="javascript:;">\n' +
+                            '                    <div class="layui-card layui-card-body" onclick="detail(' + item.id + ')">\n' +
+                            '                        <p class="content-title" title="' + item.name + '">\n' +
+                            '                           ' + item.name + '\n' +
+                            '                        </p>\n';
+                        if (item.showPictureUrl != null) {
+                            cc += '                        <p class="content-img">\n' +
+                                '                            <img lay-src="' + item.showPictureUrl + '"/>\n' +
+                                '                        </p>\n' +
+                                '                        <p class="content-desc">\n' +
+                                '                           ' + item.description + '\n' +
+                                '                        </p>\n'
+                        }
+                        cc += '                        <p class="content-date">\n' +
+                            '                           ' + item.createDateLabel + '\n' +
+                            '                        </p>\n' +
+                            '                    </div>\n' +
+                            '                 </a>\n' +
+                            '               </div>'
+                        lis.push(cc);
+                    });
+
+                    //执行下一页渲染，第二参数为：满足“加载更多”的条件，即后面仍有分页
+                    //pages为Ajax返回的总页数，只有当前页小于总页数的情况下，才会继续出现加载更多
+                    next(lis.join(''), page < res.totalPage);
+                });
+            }
+        });
+        flow.lazyimg();
+    });
+</script>
+</html>

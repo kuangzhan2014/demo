@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="#{module.categoryManagement}"></title>
+    <style>
+        p img{
+            max-width: 690px;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <input type="hidden" id="materialId" th:value="${bean.id}">
+    <div class="layui-tab-content">
+        <div class="layui-tab-item layui-show">
+            <div class="layui-row layui-col-space10">
+                <div class="content-box-side">
+                    <p style="font-size: 24px; font-weight: bold; text-align: center"  th:text="${bean.name}"></p>
+                    <p  th:utext="${bean.content}">
+                    </p>
+                    <button type="button" class="layui-btn layui-btn-fluid materialDownload" id="download">下载</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+    $('#download').on('click', function () {
+        var materialId = $('#materialId').val();
+        window.location.href = "/material/download/" + materialId;
+    })
+</script>
+</body>
+</html>

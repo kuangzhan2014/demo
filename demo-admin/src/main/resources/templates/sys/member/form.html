@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <!--<title th:text="${bean.isNew()} ? '添加' : '编辑' + '系统用户'">系统用户</title>-->
+
+    <script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+        $().ready(function () {
+
+            // 表单验证
+            $('#inputForm').validate({
+                ignore: ":hidden:not(select)", //解决无法校验select
+                rules: {
+                    memberName: {
+                        required: true,
+                        minlength: 5,
+                        remote: {
+                            url: '/sys/member/checkMemberName'
+                            , type: 'GET'
+                            , dataType: 'JSON'
+                            , data: {
+                                id: function () {
+                                    return $('input[name="id"]').val();
+                                },
+                                memberNumber: function () {
+                                    return $('input[name="memberName"]').val();
+                                }
+                            }
+                            , dataFilter: function (data) {//判断控制器返回的内容
+                                if (data == "true") {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            }
+                        }
+                    },
+                    password: {required: [[${bean.isNew()}]], minlength: 6},
+                    passwordConfirmation: {required: [[${bean.isNew()}]], minlength: 6, equalTo: '#password'},
+                    cellphone: {
+                        required: true,
+                        phoneCN: true,
+                        remote:{
+                            url: '/sys/member/checkCellphone'
+                            , type: 'GET'
+                            , dataType: 'JSON'
+                            , data: {
+                                id: function () {
+                                    return $('input[name="id"]').val();
+                                },
+                                cellphone: function () {
+                                    return $('input[name="cellphone"]').val();
+                                }
+                            }
+                            , dataFilter: function (data) {//判断控制器返回的内容
+                                if (data == "true") {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            }
+                        }
+                    },
+                    // phone:{
+                    //     telephoneCN:true,
+                    // },
+                    email: {
+                        required:true,
+                        email: true,
+                        remote:{
+                            url: '/sys/member/checkEmail'
+                            , type: 'GET'
+                            , dataType: 'JSON'
+                            , data: {
+                                id: function () {
+                                    return $('input[name="id"]').val();
+                                },
+                                email: function () {
+                                    return $('input[name="email"]').val();
+                                }
+                            }
+                            , dataFilter: function (data) {//判断控制器返回的内容
+                                if (data == "true") {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            }
+                        }
+                    },
+
+                    areaCode:{
+                        required:true
+                    }
+                },
+                messages: {
+                    memberName: {
+                        remote: /*[[#{validate.memberName}]]*/ "该用户名已存在！"
+                    },
+                    cellphone: {
+                        phoneCN: /*[[#{validate.valid.cellphone}]]*/"请输入有效的手机号码" ,
+                        remote: /*[[#{validate.cellphone}]]*/ "该手机号码已存在！"
+                    },
+                    email: {
+                        remote: /*[[#{validate.email}]]*/ "该邮箱已存在！"
+                    },
+                    areaCode:{
+                        required: /*[[#{validate.area}]]*/ "请选择省市区！"
+                    }
+                }
+            });
+        });
+        var provinceCode = [[${bean.provinceCode}]];
+        var cityCode = [[${bean.cityCode}]];
+        var areaCode = [[${bean.areaCode}]];
+        var roleId=[[${roleId}]];
+
+    </script>
+
+    <script type="text/javascript">
+        layui.use(['form','pickers'], function () {
+            var $ = layui.$
+                , form = layui.form
+                , pickers = new layui.pickers();
+            form.on('radio(roleId)', function (data) {
+                roleId =$("input[name='roleId']:checked").val();
+            });
+
+            form.render();
+
+            pickers.config({
+                filterName: 'picker',
+                pickers: [{
+                    id: 'provinceCode',
+                    dataUrl: '/sys/area/province',
+                    defaultValue: provinceCode == null ? '' : provinceCode
+                }
+                    , {
+                        id: 'cityCode',
+                        dataUrl: '/sys/area/city',
+                        defaultValue: cityCode == null ? '' : cityCode
+                    }
+                    , {
+                        id: 'areaCode',
+                        dataUrl: '/sys/area/district',
+                        defaultValue: areaCode == null ? '' : areaCode
+                    }]
+            }).init();
+
+        });
+    </script>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <div class="layui-card-header" th:text="${bean.isNew()} ? '添加用户' : '编辑用户'"></div>
+        <div class="layui-card-body">
+            <form id="inputForm" class="layui-form" th:object="${bean}" action="save" method="post">
+                <input type="hidden" th:field="*{id}" name="id"/>
+                <inpui typr="hidden" th:field="*{status}" name="status"/>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{member.username}"></label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{memberName}" class="layui-input" maxlength="200"
+                                name="memberName"/>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{member.password}"></label>
+                    <div class="layui-input-inline col-md">
+                        <input type="password" id="password" name="password" class="layui-input" maxlength="200"/>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{member.verifyPassword}"></label>
+                    <div class="layui-input-inline col-md">
+                        <input type="password" id="passwordConfirmation" name="passwordConfirmation" class="layui-input"
+                               maxlength="200"/>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{member.realName}"></label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{realName}" class="layui-input" maxlength="200"
+                                name="realName"/>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{member.cellphone}"></label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{cellphone}" class="layui-input" maxlength="200"
+                                name="cellphone"/>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{member.email}"></label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{email}" class="layui-input" maxlength="200"
+                                name="email"/>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{member.position}"></label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{position}" class="layui-input" maxlength="200"
+                                name="position"/>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{member.area}"></label>
+                    <div class="layui-input-inline">
+                        <select id="provinceCode" name="provinceCode" class="layui-input" th:field="*{provinceCode}"
+                                lay-filter="picker"
+                                lay-verify=""
+                                lay-search>
+                            <option value="" th:text="#{placeholder.province}"></option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select id="cityCode" name="cityCode" class="layui-input" th:field="*{cityCode}"
+                                lay-filter="picker"
+                                lay-verify=""
+                                lay-search>
+                            <option value="" th:text="#{placeholder.city}"></option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select id="areaCode" name="areaCode" class="layui-input" th:field="*{areaCode}"
+                                lay-filter="picker"
+                                lay-verify=""
+                                lay-search>
+                            <option value="" th:text="#{placeholder.district}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{member.street}"></label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{street}" class="layui-input" maxlength="200"
+                                name="street"/>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{member.role.name}"></label>
+                    <div class="layui-input-block col-md">
+                        <input type="radio" name="roleId" id="user" th:attr ="checked=${roleId} eq 2 " th:value="2" th:title="#{role.name.user}" lay-filter="roleId" >
+                        <input type="radio" name="roleId" id="admin" th:attr ="checked=${roleId} eq 1" th:value="1" th:title="#{role.name.admin}"lay-filter="roleId">
+                    </div>
+                </div>
+
+                <!--<div class="layui-form-item">-->
+                <!--<label class="layui-form-label" th:text="#{member.status}"></label>-->
+                <!--<div class="layui-input-inline col-md">-->
+                    <!--<select th:field="*{status}">-->
+                        <!--<option th:each="item : ${#dicts.getDictList('member_status')}" th:value="${item.code}"-->
+                                <!--th:text="${item.codeLabel}"></option>-->
+                    <!--</select>-->
+                <!--</div>-->
+                <!--</div>-->
+
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit="" lay-filter="demo1"
+                                th:text="#{common.btn.submit}"></button>
+                        <button type="button" class="layui-btn layui-btn-primary"
+                                onclick="history.back(); return false;" th:text="#{common.btn.back}"></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+

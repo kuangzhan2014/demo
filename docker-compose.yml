@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  admin:
+    restart: always
+    build:
+      context: ./demo-admin
+      dockerfile: ./src/main/docker/Dockerfile
+    volumes:
+    - ~/.m2:/root/.m2
+    - /var/log/demo:/app/logs
+    ports:
+    - "8888:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      JAVA_OPTS: ${JAVA_OPTS}

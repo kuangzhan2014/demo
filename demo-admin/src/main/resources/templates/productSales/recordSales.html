@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title></title>
+
+    <script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+        function inputFormValidate() {
+            // 表单验证
+            return $('#inputForm').validate({
+                ignore: ":hidden:not(select)" //解决无法校验select
+                , rules: {
+                    salesVolume: {
+                        required: true,
+                        digits: true
+                    },
+                    date: {
+                        required: true
+                    }
+                },
+                messages: {}
+            });
+        }
+
+        layui.use(['laydate', 'memberUtils', 'form'], function () {
+            var laydate = layui.laydate
+                , memberUtils = layui.memberUtils;
+
+
+            renderDateMonth()
+
+            function renderDateMonth() {
+                var language = memberUtils.getLanguage();
+
+                var timeDate;
+                if ("zh_CN" == language || null == language) {
+                    timeDate = {
+                        elem: '#date'
+                        , btns: ['now','confirm']
+                        , trigger: 'click'
+                    }
+                } else {
+                    timeDate = {
+                        elem: '#date'
+                        , lang: 'en'
+                        , btns: ['now','confirm']
+                        , trigger: 'click'
+                    }
+                }
+
+                //年月选择器
+                laydate.render(timeDate);
+            }
+        })
+    </script>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <div class="layui-card-header"></div>
+        <div class="layui-card-body">
+            <form id="inputForm" class="layui-form" th:object="${bean}">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" readonly th:field="*{date}" class="layui-input" maxlength="100"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label" th:text="#{productSalesVolume.sales}"></label>
+                        <div class="layui-input-inline">
+                            <input type="text" th:field="*{salesVolume}" class="layui-input" maxlength="200"
+                                   th:placeholder="#{productSalesVolume.sales}"/>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

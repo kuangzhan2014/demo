@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title>参数列表</title>
+</head>
+<body>
+    <div class="layui-fluid" layout:fragment="content">
+        <div class="layui-card">
+            <form id="listForm" class="layui-form layui-card-header layuiadmin-card-header-auto" action="#" method="get">
+                <input type="hidden" id="pageNumber" name="current" th:value="${page.current}" />
+                <input type="hidden" id="pageSize" name="size" th:value="${page.size}" />
+
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">参数组</label>
+                        <div class="layui-input-inline">
+                            <select name="paramGroup">
+                                <option value="">全部</option>
+                                <option th:each="item : ${#dicts.getDictList('param_group')}" th:value="${item.code}" th:text="${item.codeLabel}" th:selected="${item.code == paramGroup}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="LAY-app-contlist-search">
+                            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                        </button>
+                    </div>
+                </div>
+
+
+                <div id="controlBar">
+                    <div class="layui-btn-group">
+                        <a class="layui-btn" href="add">
+                            <i class="layui-icon layuiadmin-button-btn">&#xe61f;</i>添加参数
+                        </a>
+                        <button id="deleteButton" class="layui-btn">
+                            <i class="layui-icon layui-icon-delete layuiadmin-button-btn"></i>
+                        </button>
+                    </div>
+
+                    <div id="searchBar" class="layui-inline" style="float:right">
+                        <div class="layui-input-inline" style="width: 100px;">
+                            <select id="searchProperty" name="searchProperty">
+                                <option value="">搜索条件</option>
+                                <option value="param_name" th:selected="${searchProperty == 'param_name'}">参数名</option>
+                                <option value="param_key" th:selected="${searchProperty == 'param_key'}">参数键</option>
+                                <option value="param_value" th:selected="${searchProperty == 'param_value'}">参数值</option>
+                            </select>
+                        </div>
+                        <div class="layui-input-inline">
+                            <input type="text" id="searchValue" name="searchValue" th:value="${searchValue}" autocomplete="off" class="layui-input">
+                        </div>
+                        <div class="layui-input-inline">
+                            <button class="layui-btn" value="搜索" type="submit">搜索</button>
+                        </div>
+                        <div class="layui-input-inline">
+                            <button id="resetSearchButton" class="layui-btn layui-btn-primary" value="重置" type="button">重置</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="layui-card-body">
+
+                <table id="listTable" class="layui-table" lay-skin="line" >
+                    <colgroup>
+                        <col>
+                        <col>
+                        <col>
+                        <col>
+                        <col>
+                        <col width="140">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                        <th>参数组</th>
+                        <th>参数名</th>
+                        <th>键</th>
+                        <th>值</th>
+                        <th>备注</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${page.records}">
+                        <td th:text="${item.paramGroupLabel}"></td>
+                        <td th:text="${item.paramName}"></td>
+                        <td th:text="${item.paramKey}"></td>
+                        <td th:text="${item.paramValue}"></td>
+                        <td th:text="${item.remark}"></td>
+                        <td>
+                            <a class="layui-btn layui-btn-xs layui-btn-warm" th:href="@{/sys/param/edit(id=${item.id})}">编辑</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div id="pagination">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+        layui.use('table_list', function(){
+            var tableList = layui.table_list;
+
+            tableList.init({
+                curr: '[(${page.current})]',
+                count: '[(${page.total})]',
+                limit: '[(${page.size})]'
+            });
+
+        });
+    </script>
+</body>
+</html>
+

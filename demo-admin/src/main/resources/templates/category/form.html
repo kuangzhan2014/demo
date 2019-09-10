@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title></title>
+
+    <script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+        function inputFormValidate() {
+            // 表单验证
+            return $('#inputForm').validate({
+                ignore: ":hidden:not(select)" //解决无法校验select
+                ,rules: {
+                    name: {
+                        required: true
+                    }
+                    , type: {
+                        required: true
+                    }
+                    , sort: {
+                        required: true,
+                        digits: true
+                    }
+                },
+                messages: {}
+            });
+        }
+
+        layui.use('form', function() {
+        })
+    </script>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <div class="layui-card-header"></div>
+        <div class="layui-card-body">
+            <form id="inputForm" class="layui-form" th:object="${bean}">
+                <input type="hidden" th:field="*{id}"/>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{category.name}"></label>
+                    <div class="layui-input-inline">
+                        <input type="text" th:field="*{name}" class="layui-input" maxlength="200"
+                               th:placeholder="#{category.name}"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{category.type}"></label>
+                    <div class="layui-input-inline">
+                        <select th:field="*{type}" lay-filter="type" lay-search>
+                            <option value="" th:text="#{common.placeholder.select}">选择公告类型</option>
+                            <option th:each="item : ${#dicts.getDictList('category_type')}"
+                                    th:value="${item.code}" th:text="${item.codeLabel}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" th:text="#{category.sort}"></label>
+                    <div class="layui-input-inline">
+                        <input type="text" th:field="*{sort}" class="layui-input" maxlength="200"/>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

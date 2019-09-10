@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="#{entity.material}"></title>
+
+    <style>
+        #sales {
+            position: absolute;
+            top: 0px;
+            left: 80px;
+        }
+
+        #date {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+<!--    <p style="margin-bottom: 10px">-->
+<!--        <span class="layui-breadcrumb">-->
+<!--            <a href="/sys/indexFrame" th:text="#{index.home}"></a>-->
+<!--            <a><cite th:text="#{module.productSales}">产品销量</cite></a>-->
+<!--        </span>-->
+<!--    </p>-->
+    <div class="layui-card">
+        <div class="layui-card-header layuiadmin-card-header-auto">
+            <form id="listForm" lay-filter="listForm" class="layui-form"
+                  action="#" method="get">
+                <input type="hidden" th:field="${bean.categoryId}">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <input type="text" placeholder="产品名称" th:field="${bean.name}" autocomplete="off"
+                                   class="layui-input" maxlength="200"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline" id="searchBtn" style="margin-right: 0px">
+                        <button class="layui-btn" id="seachButton" th:text="#{common.btn.search}"></button>
+                    </div>
+                    <div class="layui-inline">
+                        <button name="resetSearchButton" class="layui-btn layui-btn-primary" th:text="#{common.btn.reset}"
+                                type="button">
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="layui-row layui-col-space20">
+        <div class="layui-col-sm7">
+            <div class="layui-card">
+                <div class="layui-card-header" >
+                    <span th:text="#{entity.product}"></span>
+                </div>
+                <div class="layui-card-body">
+                    <div class="layui-row layui-col-space15 content-list" id="contentList">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-sm5">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <span th:text="#{module.productSales}"></span>
+
+                    <div id="sales" style="display: none;">
+                        <div id="date">
+                            <span id="dateText"></span>
+                        </div>
+                    </div>
+                    <a href="#" class="layui-a-tips" id="recordSales" th:text="#{ui.material.echarts,recordSales}">录入销量</a>
+                </div>
+                <div class="layui-card-body">
+                    <input type="hidden" id="productId">
+                    <div id="downloadCount" style="height: 400px; width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-tab layui-tab-brief">
+        <div class="layui-tab-content">
+            <div class="layui-col-md7 layui-col-sm7 layui-col-xs7 content-item">
+            </div>
+            <div class="layui-col-md5 layui-col-sm5 layui-col-xs5 content-item"
+                 style="position: fixed;top: 20%; left: 58%;">
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+
+
+    layui.use(['index', 'echarts', 'laydate', 'flow', 'memberUtils'], function () {
+        var flow = layui.flow
+            , laydate = layui.laydate
+            , echarts = layui.echarts
+            , memberUtils = layui.memberUtils;
+
+        renderDateMonth()
+
+        // 基于准备好的dom，初始化echarts实例
+        var chart = echarts.init(document.getElementById('downloadCount'))
+            , productSales = /*[[#{ui.material.echarts.productSales}]]*/'产品销量'
+            , only = /*[[#{ui.material.echarts.forReferenceOnly}]]*/'仅供参考'
+            , productId = ''
+            , buttonSubmit=/*[[#{common.btn.submit}]]*/'提交'
+            , buttonReturn=/*[[#{common.btn.back}]]*/'返回'
+
+        /**
+         * 获取获取并更新图表
+         */
+        getDataAndShowChart = function (id) {
+            var date = $('#date').val()
+            $.ajax({
+                url: "/sales/echarts",
+                type: "GET",
+                dataType: "json"
+                , data: {productId: id, date: date}
+                , cache: false
+                , success: function (data) {
+                    $('#sales').show()
+                    initAndShowChart(data.date, data.dateArr, data.productSalesArr)
+                    productId = data.productId
+                }
+                , error: function (xhr, status, error) {
+                    var msg = xhr.responseJSON.message;
+                    layer.msg(msg == null ? '统计失败' : msg, {
+                        offset: 't',
+                        icon: 2
+                    });
+                }
+            });
+        }
+
+        $(window).resize(function () {
+            chart.resize();
+        });
+
+        /**
+         * 初始化或显示图表
+         */
+        function initAndShowChart(date, dateArr, productSalesArr) {
+            $('#dateText').val(date)
+            var option = {
+                color: ['#3398DB'],
+                title: {
+                    text: date + ' ' + productSales,
+                    subtext: only
+                },
+                grid: {
+                    x: 20,
+                    y: 80,
+                    x2: 20,
+                    y2: 80
+                },
+                toolbox: {
+                    show: true,
+                    feature: {
+                        mark: {show: true},
+                        dataView: {show: true, readOnly: false},
+                        magicType: {show: true, type: ['line', 'bar']},
+                        restore: {show: true},
+                        saveAsImage: {show: true}
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: dateArr
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value'
+                    }
+                ],
+                series: [
+                    {
+                        name: '',
+                        type: 'bar',
+                        data: productSalesArr,
+                        markPoint: {
+                            data: [
+                                {type: 'max'}
+                            ]
+                        }
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+
+        var brandId = memberUtils.getBrandId();
+        var categoryId = $('#categoryId').val();
+        var name = $('#name').val();
+        flow.load({
+            elem: '#contentList' //指定列表容器
+            , end: /*[[#{common.load.end}]]*/'没有更多了'
+            , isLazyimg: true
+            , done: function (page, next) { //到达临界点（默认滚动触发），触发下一页
+                var lis = [];
+                //以jQuery的Ajax请求为例，请求下一页数据（注意：page是从2开始返回）
+                $.get('/sales/listData?current=' + page + '&categoryId=' + categoryId +
+                    '&name=' + name + '&brandId=' + brandId, function (res) {
+                    //假设你的列表返回在data集合中
+                    layui.each(res.records, function (index, item) {
+                        console.log(item)
+                        var cc = '<div class="layui-col-md3 layui-col-sm3 layui-col-xs3 content-item">\n' +
+                            '                <a href="javascript:;">\n' +
+                            '                    <div class="layui-card layui-card-body" onclick="getDataAndShowChart(' + item.id + ')">\n' +
+                            '                        <p class="content-img">\n' +
+                            '                            <img lay-src="' + item.productPictureUrl + '"/>\n' +
+                            '                        </p>\n' +
+                            '                        <p class="content-title">\n' +
+                            '                           ' + item.name + '\n' +
+                            '                        </p>\n' +
+                            '                    </div>\n' +
+                            '                 </a>\n' +
+                            '               </div>'
+                        lis.push(cc);
+                    });
+
+                    //执行下一页渲染，第二参数为：满足“加载更多”的条件，即后面仍有分页
+                    //pages为Ajax返回的总页数，只有当前页小于总页数的情况下，才会继续出现加载更多
+                    next(lis.join(''), page < res.totalPage);
+                });
+            }
+        });
+        flow.lazyimg();
+
+
+        function renderDateMonth() {
+            var language = memberUtils.getLanguage();
+
+            var timeDate;
+            if ("zh_CN" == language || null == language) {
+                timeDate = {
+                    elem: '#date'
+                    , type: 'month'
+                    ,trigger: 'click'
+                    , btns: ['now','confirm']
+                    , done: function (value, date) {
+                        $.ajax({
+                            url: "/sales/echarts",
+                            type: "GET",
+                            dataType: "json"
+                            , data: {productId: productId, date: value}
+                            , cache: false
+                            , success: function (data) {
+                                initAndShowChart(data.date, data.dateArr, data.productSalesArr)
+                            }
+                            , error: function (xhr, status, error) {
+                                var msg = xhr.responseJSON.message;
+                                layer.msg(msg == null ? '统计失败' : msg, {
+                                    offset: 't',
+                                    icon: 2
+                                });
+                            }
+                        });
+                    }
+                }
+            } else {
+                timeDate = {
+                    elem: '#date'
+                    , type: 'month'
+                    , lang: 'en'
+                    ,trigger: 'click'
+                    , btns: ['now','confirm']
+                    , done: function (value, date) {
+                        $.ajax({
+                            url: "/sales/echarts",
+                            type: "GET",
+                            dataType: "json"
+                            , data: {productId: productId, date: value}
+                            , cache: false
+                            , success: function (data) {
+                                initAndShowChart(data.date, data.dateArr, data.productSalesArr)
+                            }
+                            , error: function (xhr, status, error) {
+                                var msg = xhr.responseJSON.message;
+                                layer.msg(msg == null ? '统计失败' : msg, {
+                                    offset: 't',
+                                    icon: 2
+                                });
+                            }
+                        });
+                    }
+                }
+            }
+
+            //年月选择器
+            laydate.render(timeDate);
+        }
+
+        $('#recordSales').click(function () {
+            layer.open({
+                type: 2 //Page层类型
+                , btn: [buttonSubmit, buttonReturn]
+                , scrollbar: true
+                , shadeClose: false
+                , area: ['850px', '450px']
+                , title: false
+                , anim: -1 //0-6的动画形式，-1不开启
+                , content: ['/sales/recordSales']
+                , yes: function (index, layero) {
+                    //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+
+                    var iframeWin = window[layero.find('iframe')[0]['name']];
+                    if (iframeWin.inputFormValidate().form()) {
+                        var date = $($(layero).find("iframe")[0].contentWindow.document).find('input[name="date"]').val();
+                        var salesVolume = $($(layero).find("iframe")[0].contentWindow.document).find('input[name="salesVolume"]').val();
+                        saveProductSales(date, salesVolume)
+                        layer.close(index);
+                    }
+                }
+            });
+        })
+
+        function saveProductSales(date, salesVolume) {
+            $.ajax({
+                url: "/sales/saveData",
+                type: "POST",
+                dataType: "json"
+                , data: {
+                    productId: productId,
+                    date: date,
+                    salesVolume: salesVolume
+                }
+                , cache: false
+                , success: function (data) {
+                    console.log(data)
+                    initAndShowChart(data.date, data.dateArr, data.productSalesArr)
+                }
+                , error: function (xhr, status, error) {
+                    var msg = xhr.responseJSON.message;
+                    layer.msg(msg == null ? '统计失败' : msg, {
+                        offset: 't',
+                        icon: 2
+                    });
+                }
+            });
+        }
+    });
+</script>
+</html>

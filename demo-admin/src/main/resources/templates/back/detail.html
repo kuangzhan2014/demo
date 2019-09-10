@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <!--<div class="layui-card-header" th:text="${bean.isNew()} ? '添加' : '编辑' + '系统用户'"></div>-->
+        <div class="layui-card-body">
+            <form id="inputForm" class="layui-form"action="save" method="post">
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 140px" th:text="#{background.login}"></label>
+                    <div class="layui-col-md8">
+                        <a href="javascript:;" class="product-picture" style="height: 200px;" id="uploadLoginImage">
+                            <div th:if="${login.paramValue != null && login.paramValue != ''}">
+                                <img th:src="${login.paramValue}" class="product-picture" style="max-height: 200px;">
+                            </div>
+                            <i th:else class="layui-icon layui-icon-add-1" > </i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="width: 140px" th:text="#{background.brand}"></label>
+                    <div class="layui-col-md8">
+                        <a href="javascript:;" class="product-picture" id="uploadBrandImage" style="height: 200px;">
+                            <div th:if="${brand.paramValue ne null}" >
+                                <img th:src="${brand.paramValue}" class="product-picture" style="max-height: 200px;">
+                            </div>
+                            <i th:if="${brand.paramValue == null}" class="layui-icon layui-icon-add-1" id="iconAdd"> </i>
+                        </a>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+    layui.use(['upload', 'form'], function () {
+        var upload = layui.upload
+            , form = layui.form;
+
+        var imgIndexByInputStream = ""
+            ,imgObj = ''
+            ,uploading = /*[[#{upload.msg.loading}]]}*/'上传中...';
+        //上传预览图
+        upload.render({
+            elem: '#uploadLoginImage' //绑定元素
+            , url: '/back/uploadLoginImage' //上传接口
+            , exts: 'jpg|png|jpeg'
+            , size: 10240
+            , before: function (obj) {
+                //预读本地文件示例，不支持ie8
+                imgObj = obj;
+                layer.msg(uploading, {
+                    icon: 16
+                    , shade: 0.01
+                    , time: 0
+                });
+            }
+            , done: function () {
+
+                layer.closeAll();
+                $('#iconAdd').hide();
+                // 预览
+                imgObj.preview(function (index, file, result) {
+                    index = index.replace("-", "");
+                    var html = '<div id="' + index + '"><img src="' + result + '" class="product-picture" style="max-height: 200px;"/></div>'
+                    $('#uploadLoginImage').html(html) //图片链接（base64）
+                    imgIndexByInputStream = index;
+                });
+            }
+            , error: function () {
+                //请求异常回调
+                layer.closeAll();
+            }
+        });
+
+        //上传预览图
+        upload.render({
+            elem: '#uploadBrandImage' //绑定元素
+            , url: '/back/uploadBrandImage' //上传接口
+            , exts: 'jpg|png|jpeg'
+            , size: 10240
+            , before: function (obj) {
+                //预读本地文件示例，不支持ie8
+                imgObj = obj;
+                layer.msg(uploading, {
+                    icon: 16
+                    , shade: 0.01
+                    , time: 0
+                });
+            }
+            , done: function (res) {
+
+                layer.closeAll();
+                $('#iconAdd').hide();
+                // 预览
+                imgObj.preview(function (index, file, result) {
+                    index = index.replace("-", "");
+                    var html = '<div id="' + index + '"><img src="' + result + '" class="product-picture" style="max-height: 200px;"/></div>'
+                    $('#uploadBrandImage').html(html) //图片链接（base64）
+                    imgIndexByInputStream = index;
+                });
+            }
+            , error: function () {
+                //请求异常回调
+                layer.closeAll();
+            }
+        });
+
+    });
+</script>
+</body>
+</html>
+

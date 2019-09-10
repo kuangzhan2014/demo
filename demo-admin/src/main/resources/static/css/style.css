@@ -1,0 +1,189 @@
+@charset "utf-8";
+
+#inputForm .layui-input-inline.col-md {
+    width: 320px;
+}
+
+.validation-error {
+    color: #FF5722;
+}
+
+/* 列表 */
+.pane-right-button {
+    position: absolute;
+    right: 15px;
+    top: 6px;
+}
+
+.pane-right-button i.layui-icon {
+    line-height: inherit;
+    position: unset;
+    margin-top: unset;
+    top: unset;
+    right: unset;
+}
+
+.content-list {
+    padding: 10px;
+}
+
+.content-item .content-title {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    word-break: break-all;
+    width: 100%;
+}
+
+
+.content-img{
+    text-align: center;
+}
+
+.content-item .content-img img {
+    height: 100px;
+    object-fit: cover;
+    margin-bottom: 5px;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.content-item .content-desc {
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    word-break: break-all;
+    width: 100%;
+}
+
+.content-item .content-date {
+    font-size: 12px;
+    text-align: right;
+    color: #c2c2c2;
+}
+
+.brand-main-picture {
+    width: 100%;
+    object-fit: cover;
+}
+
+.content-more-container {
+    display: block;
+    background: #f6f6f6;
+    text-align: center;
+    height: 170px;
+    width: 100%;
+}
+
+.content-more-container i.layui-icon {
+    display: inline-block;
+    margin-top: 75px;
+}
+
+/* 详情 */
+.content-box {
+    padding: 20px;
+}
+
+.content-box img {
+    width: 100%;
+}
+
+.content-box-side {
+    padding: 5px 15px;
+}
+
+.content-box .content-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.content-box .content-desc {
+    line-height: 22px;
+    text-indent: 2em;
+}
+
+.content-box .layui-form {
+    margin-bottom: 10px;
+}
+
+.content-box .layui-form .layui-word-aux {
+    float: right;
+}
+
+.content-box .layui-form .layui-form-item {
+    margin-bottom: 0;
+}
+
+.product-picture {
+    display: block;
+    background: #f6f6f6;
+    text-align: center;
+    height: 345px;
+    width: 100%;
+}
+
+.product-picture i.layui-icon {
+    display: inline-block;
+    margin-top: 160px;
+    font-size: 45px;
+}
+
+.btn-iframe {
+    width: 44%;
+    margin: 0 0 2% 5%;
+}
+
+.materialDownload {
+    position: fixed;
+    bottom: 0;
+    top: 93%;
+    right: 0;
+}
+
+.progress {
+    margin: 4% 0 0 0;
+    width: 100%;
+    height: 30px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
+}
+
+.progress-bar {
+    background-color: rgb(92, 184, 92);
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.14902) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.14902) 50%, rgba(255, 255, 255, 0.14902) 75%, transparent 75%, transparent);
+    background-size: 40px 40px;
+    box-shadow: rgba(0, 0, 0, 0.14902) 0px -1px 0px 0px inset;
+    box-sizing: border-box;
+    color: rgb(255, 255, 255);
+    display: block;
+    float: left;
+    font-size: 18px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    transition-delay: 0s;
+    transition-duration: 0.6s;
+    transition-property: width;
+    transition-timing-function: ease;
+}
+.layui-layout-admin .layui-body{
+    top: 0;
+}
+.layui-layout-admin .layui-body{
+    top: 40px;
+}

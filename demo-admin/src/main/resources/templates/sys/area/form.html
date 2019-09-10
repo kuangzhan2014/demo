@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="${bean.isNew()} ? '添加' : '编辑' + '地区'">编辑地区</title>
+
+    <script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+        $().ready(function() {
+
+            // 表单验证
+            $('#inputForm').validate({
+                rules: {
+                    paramName: {
+                        required: true
+                    },
+                    paramKey: {
+                        required: true
+                    },
+                    paramValue: {
+                        required: true
+                    }
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <div class="layui-card-header" th:text="${bean.isNew()} ? '添加' : '编辑' + '地区'"></div>
+        <div class="layui-card-body">
+            <form id="inputForm" class="layui-form" th:action="${bean.isNew() ? 'save' : 'update' }" method="post" th:object="${bean}">
+                <input type="hidden" th:field="*{id}" />
+                <div class="layui-form-item">
+                    <label class="layui-form-label">地区名</label>
+                    <div class="layui-input-inline col-md">
+                        <input type="text" th:field="*{areaName}" class="layui-input" maxlength="200"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">备注</label>
+                    <div class="layui-input-inline col-md">
+                        <textarea th:field="*{remark}" class="layui-textarea" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit="" lay-filter="demo1">提交</button>
+                        <button type="button" class="layui-btn layui-btn-primary" onclick="history.back(); return false;">返回</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+

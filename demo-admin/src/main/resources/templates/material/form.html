@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="#{entity.product}"></title>
+    <script type="text/javascript" src="/static/tinymce/tinymce.min.js"></script>
+    <script type="text/javascript" src="/static/js/upload.js"></script>
+    <script type="text/javascript" src="/static/js/plupload.full.min.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            // 富文本：公告内容
+            tinymce.init({
+                selector: 'textarea[name="content"]'
+                ,
+                language: "zh_CN"
+                ,
+                height: 300
+                ,
+                theme: "modern"
+                ,
+                plugins:
+                    [
+                        "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
+                        "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
+                        "save table contextmenu directionality emoticons template paste textcolor previewcontent"
+                    ]
+                ,
+                toolbar1: "insertfile undo redo | styleselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | fontselect fontsizeselect "
+                ,
+                toolbar2: "forecolor backcolor emoticons | bullist numlist | outdent indent | removeformat | link unlink image | print fullscreen  "
+                // ,images_upload_base_path: '/some/basepath'
+                ,
+                images_upload_credentials: true
+                ,
+                images_upload_handler: function (blobInfo, success, failure) {
+                    var xhr, formData;
+                    xhr = new XMLHttpRequest();
+                    xhr.withCredentials = false;
+                    xhr.open('POST', '/upload/tinyMCEUploadImage');
+                    xhr.onload = function () {
+                        var json;
+
+                        if (xhr.status != 200) {
+                            failure('HTTP Error: ' + xhr.status);
+                            return;
+                        }
+                        json = JSON.parse(xhr.responseText);
+
+                        if (!json || typeof json.location != 'string') {
+                            failure('Invalid JSON: ' + xhr.responseText);
+                            return;
+                        }
+                        success(json.location);
+                    };
+                    formData = new FormData();
+                    formData.append('file', blobInfo.blob());
+                    // formData.append('file', blobInfo.blob(), fileName(blobInfo));
+                    xhr.send(formData);
+                }
+            });
+        })
+    </script>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-tab layui-tab-card">
+        <ul class="layui-tab-title" th:style="${bean.isNew()?'':'display:none'}">
+            <li class="layui-this" th:text="#{material.pictureMaterial}"></li>
+            <li th:text="#{material.videoMaterial}"></li>
+            <li th:text="#{material.textMaterial}"></li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show" id="pictureMaterial">
+                <div class="layui-card">
+                    <div class="layui-card-body">
+                        <form id="videoInputForm" class="layui-form" action="save" method="post" th:object="${bean}">
+                            <input type="hidden" th:field="*{id}">
+                            <input type="hidden" th:field="*{brandId}">
+                            <input type="hidden" name="type" value="1">
+                            <div class="layui-row layui-col-space30">
+                                <div class="layui-col-md4">
+                                    <a href="javascript:;" class="product-picture" id="uploadImage">
+                                        <div th:if="*{showPicture ne null}">
+                                            <img th:src="*{showPictureUrl}" class="product-picture">
+                                        </div>
+                                        <i th:if="*{showPicture == null}" class="layui-icon layui-icon-add-1"
+                                           name="iconAdd"> </i>
+                                    </a>
+                                    <input type="hidden" th:field="*{showPicture}">
+                                </div>
+                                <div class="layui-col-md8">
+                                    <div class="layui-form layui-form-pane" action=""
+                                         lay-filter="component-form-element">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label" th:text="#{material.name}"></label>
+                                            <div class="layui-input-block">
+                                                <input type="text" th:field="*{name}"
+                                                       placeholder="" autocomplete="off" class="layui-input">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item layui-form-text">
+                                            <label class="layui-form-label" th:text="#{material.description}"></label>
+                                            <div class="layui-input-block">
+                                    <textarea placeholder="" th:field="*{description}" style="height: 255px"
+                                              class="layui-textarea"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item"
+                                             th:style="${categoryList.size() > 0} ? '' : 'display:none'">
+                                            <label class="layui-form-label" th:text="#{entity.category}"></label>
+                                            <div class="layui-input-block">
+                                                <input type="checkbox" th:each="item : ${categoryList}"
+                                                       th:checked="${item.status} ? false : true"
+                                                       th:value="${item.id}" th:name="categoryIds"
+                                                       th:title="${item.name}"/>
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item"
+                                             th:style="${productList.size() > 0} ? '' : 'display:none'">
+                                            <label class="layui-form-label" th:text="#{entity.product}"></label>
+                                            <div class="layui-input-block">
+                                                <input type="checkbox" th:each="product : ${productList}"
+                                                       th:checked="${product.status} ? false : true"
+                                                       th:value="${product.id}" th:name="productIds"
+                                                       th:title="${product.name}"/>
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <div class="layui-input-block">
+                                                <button class="layui-btn" lay-submit="" lay-filter="pictureSubmit"
+                                                        th:text="#{common.btn.submit}" id="pictureSubmit"></button>
+                                                <button type="button" class="layui-btn layui-btn-primary"
+                                                        th:text="#{common.btn.back}"
+                                                        onclick="history.back(); return false;">
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item" id="videoMaterial">
+                <div class="layui-card">
+                    <div class="layui-card-body">
+                        <form id="pictureInputForm" class="layui-form" action="save" method="post" th:object="${bean}">
+                            <input type="hidden" th:field="*{id}">
+                            <input type="hidden" th:field="*{brandId}">
+                            <input type="hidden" name="type" value="2">
+                            <div class="layui-row layui-col-space30">
+                                <div class="layui-col-md4">
+                                    <a href="javascript:;" class="product-picture" id="uploadVideo">
+                                        <div th:if="*{showPicture ne null}">
+                                            <img th:src="*{showPictureUrl}" class="product-picture">
+                                        </div>
+                                        <i th:if="*{showPicture == null}" class="layui-icon layui-icon-add-1"
+                                           name="iconAdd"> </i>
+                                    </a>
+                                    <input type="hidden" th:field="*{videoUrl}">
+                                    <div id="ossFile">
+                                    </div>
+                                </div>
+                                <div class="layui-col-md8">
+                                    <div class="layui-form layui-form-pane" action=""
+                                         lay-filter="component-form-element">
+                                        <div class="layui-form-item">
+                                            <label class="layui-form-label" th:text="#{material.name}"></label>
+                                            <div class="layui-input-block">
+                                                <input type="text" th:field="*{name}"
+                                                       placeholder="" autocomplete="off" class="layui-input">
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item layui-form-text">
+                                            <label class="layui-form-label" th:text="#{material.description}"></label>
+                                            <div class="layui-input-block">
+                                    <textarea placeholder="" th:field="*{description}" style="height: 255px"
+                                              class="layui-textarea"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item"
+                                             th:style="${categoryList.size() > 0} ? '' : 'display:none'">
+                                            <label class="layui-form-label" th:text="#{entity.category}"></label>
+                                            <div class="layui-input-block">
+                                                <input type="checkbox" th:each="item : ${categoryList}"
+                                                       th:checked="${item.status} ? false : true"
+                                                       th:value="${item.id}" th:name="categoryIds"
+                                                       th:title="${item.name}"/>
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item"
+                                             th:style="${productList.size() > 0} ? '' : 'display:none'">
+                                            <label class="layui-form-label" th:text="#{entity.product}"></label>
+                                            <div class="layui-input-block">
+                                                <input type="checkbox" th:each="product : ${productList}"
+                                                       th:checked="${product.status} ? false : true"
+                                                       th:value="${product.id}" th:name="productIds"
+                                                       th:title="${product.name}"/>
+                                            </div>
+                                        </div>
+                                        <div class="layui-form-item">
+                                            <div class="layui-input-block">
+                                                <button class="layui-btn" lay-submit="" lay-filter="pictureSubmit"
+                                                        th:text="#{common.btn.submit}" id="videoSubmit"></button>
+                                                <button type="button" class="layui-btn layui-btn-primary"
+                                                        th:text="#{common.btn.back}"
+                                                        onclick="history.back(); return false;">
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item" id="textMaterial">
+                <div class="layui-card">
+                    <div class="layui-card-body">
+                        <form id="textInputForm" class="layui-form" action="save" method="post" th:object="${bean}">
+                            <input type="hidden" th:field="*{id}">
+                            <input type="hidden" th:field="*{brandId}">
+                            <input type="hidden" name="type" value="3">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label" th:text="#{common.field.title}"></label>
+                                <div class="layui-input-inline col-md">
+                                    <input type="text" th:field="*{name}" autocomplete="off"
+                                           class="layui-input" style="width: 800px;"
+                                           maxlength="200"/>
+                                </div>
+                            </div>
+                            <div class="layui-form-item" name="contentWrap">
+                                <label class="layui-form-label" th:text="#{common.field.comtent}"></label>
+                                <div class="layui-input-inline col-md" style="width: 730px;">
+                                    <textarea th:field="*{content}"></textarea>
+                                </div>
+                            </div>
+                            <div class="layui-form-item"
+                                 th:style="${categoryList.size() > 0} ? '' : 'display:none'">
+                                <label class="layui-form-label" th:text="#{entity.category}"></label>
+                                <div class="layui-input-block">
+                                    <input type="checkbox" th:each="item : ${categoryList}"
+                                           th:checked="${item.status} ? false : true"
+                                           th:value="${item.id}" th:name="categoryIds"
+                                           th:title="${item.name}"/>
+                                </div>
+                            </div>
+                            <div class="layui-form-item"
+                                 th:style="${productList.size() > 0} ? '' : 'display:none'">
+                                <label class="layui-form-label" th:text="#{entity.product}"></label>
+                                <div class="layui-input-block">
+                                    <input type="checkbox" th:each="product : ${productList}"
+                                           th:checked="${product.status} ? false : true"
+                                           th:value="${product.id}" th:name="productIds"
+                                           th:title="${product.name}"/>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-input-block">
+                                    <button class="layui-btn" lay-submit="" lay-filter="textSubmit"
+                                            th:text="#{common.btn.submit}" id="textSubmit"></button>
+                                    <button type="button" class="layui-btn layui-btn-primary"
+                                            th:text="#{common.btn.back}"
+                                            onclick="history.back(); return false;">
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+
+    $().ready(function () {
+        getType()
+        // 表单验证
+        $("#pictureInputForm").validate({
+            rules: {
+                name: {
+                    required: true,
+                }
+            },
+            messages: {}
+        });
+        $("#videoInputForm").validate({
+            rules: {
+                name: {
+                    required: true,
+                }
+            },
+            messages: {}
+        });
+        $("#textInputForm").validate({
+            rules: {
+                name: {
+                    required: true,
+                }
+            },
+            messages: {}
+        });
+    });
+
+    function getType() {
+        var type = [[${bean.type}]];
+        switch (type) {
+            case 1:
+                break;
+            case 2:
+                $('#pictureMaterial').removeClass("layui-show")
+                $('#videoMaterial').addClass("layui-show")
+                break;
+            case 3:
+                $('#pictureMaterial').removeClass("layui-show")
+                $('#textMaterial').addClass("layui-show")
+                break;
+            default:
+                break;
+        }
+    }
+
+    var uploading = /*[[#{upload.msg.loading}]]*/'上传中...'
+        , uploadImageMsg = /*[[#{validate.upload.materialUrl}]]*/'请上传素材'
+    layui.use(['upload', 'form'], function () {
+        var upload = layui.upload
+            , form = layui.form;
+
+
+        var imgIndexByInputStream = "";
+        var imgObj;
+        //上传预览图
+        upload.render({
+            elem: '#uploadImage' //绑定元素
+            , url: '/upload/imageByInputStream' //上传接口
+            , exts: 'jpg|png|jpeg'
+            , size: 10240
+            , before: function (obj) {
+                //预读本地文件示例，不支持ie8
+                imgObj = obj;
+                layer.msg(uploading, {
+                    icon: 16
+                    , shade: 0.01
+                    , time: 0
+                });
+            }
+            , done: function (res) {
+
+                layer.closeAll();
+                $('#iconAdd').hide();
+                // 预览
+                imgObj.preview(function (index, file, result) {
+                    index = index.replace("-", "");
+                    var html = '<div id="' + index + '"><img src="' + result + '" class="product-picture" /></div>'
+                    $('#uploadImage').html(html) //图片链接（base64）
+                    imgIndexByInputStream = index;
+                });
+                //上传完毕解析APK
+                $('input[name="showPicture"]').val(res[0]);
+            }
+            , error: function () {
+                //请求异常回调
+                layer.closeAll();
+            }
+        });
+
+        form.on('submit(pictureSubmit)', function (data) {
+            var field = data.field;
+            if (field.showPicture == '') {
+                layer.msg(uploadImageMsg);
+                return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+            }
+        });
+        form.on('submit(videoSubmit)', function (data) {
+            var field = data.field;
+            if (field.showPicture == '') {
+                layer.msg(uploadImageMsg);
+                return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+            }
+        });
+    });
+</script>
+</body>
+</html>

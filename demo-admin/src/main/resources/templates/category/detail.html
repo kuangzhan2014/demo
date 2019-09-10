@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="#{module.categoryManagement}"></title>
+    <style>
+        .content-more-container-product {
+            height: 130px;
+        }
+
+        .content-more-container-product i.layui-icon {
+            margin-top: 65px;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <input type="hidden" id="categoryId" th:value="${id}">
+    <!--产品-->
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <span th:text="#{entity.product}"></span>
+            <button type="button" class="layui-btn layui-btn-sm pane-right-button"
+                    th:text="#{common.btn.more}" id="product"
+                    th:style="${productList.size() == 6} ? '' : 'display:none'">
+                <i class="layui-icon">&#xe67c;</i>
+            </button>
+        </div>
+        <div class="layui-card-body">
+            <div class="layui-row layui-col-space25 content-list">
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item" th:each="item : ${productList}">
+                    <a href="javascript:;" th:onclick="prductDetail([[${item.id}]])">
+                        <p class="content-img">
+                            <img th:src="${item.productPictureUrl}"/>
+                        </p>
+                        <p class="content-title" th:text="${item.name}">
+                        </p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--图片-->
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <span th:text="#{material.pictureMaterial}"></span>
+            <button type="button" class="layui-btn layui-btn-sm pane-right-button"
+                    th:text="#{common.btn.more}" id="pictureMaterial"
+                    th:style="${pictureList.size() == 6} ? '' : 'display:none'">
+                <i class="layui-icon">&#xe67c;</i>
+            </button>
+        </div>
+        <div class="layui-card-body">
+            <div class="layui-row layui-col-space25 content-list">
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item" th:each="item : ${pictureList}">
+                    <a href="javascript:;" th:onclick="materialDetail([[${item.id}]],[[${item.type}]])">
+                        <p class="content-title" th:text="${item.name}">
+                        </p>
+                        <p class="content-img">
+                            <img th:src="${item.showPictureUrl}"/>
+                        </p>
+                        <p class="content-desc" th:text="${item.description}">
+                        </p>
+                        <p class="content-date" th:text="${#dates.format(item.createDate, 'yyyy-MM-dd')}">
+                        </p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--视频-->
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <span th:text="#{material.videoMaterial}"></span>
+            <button type="button" class="layui-btn layui-btn-sm pane-right-button"
+                    th:text="#{common.btn.more}" id="videoMaterial"
+                    th:style="${videoList.size() == 6} ? '' : 'display:none'">
+                <i class="layui-icon">&#xe67c;</i>
+            </button>
+        </div>
+        <div class="layui-card-body">
+            <div class="layui-row layui-col-space25 content-list">
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item" th:each="item : ${videoList}">
+                    <a href="javascript:;" th:onclick="materialDetail([[${item.id}]],[[${item.type}]])">
+                        <p class="content-title" th:text="${item.name}">
+                        </p>
+                        <p class="content-img">
+                            <img th:src="${item.showPictureUrl}"/>
+                        </p>
+                        <p class="content-desc" th:text="${item.description}">
+                        </p>
+                        <p class="content-date" th:text="${#dates.format(item.createDate, 'yyyy-MM-dd')}">
+                        </p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--话术-->
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <span th:text="#{material.textMaterial}"></span>
+            <button type="button" class="layui-btn layui-btn-sm pane-right-button"
+                    th:text="#{common.btn.more}" id="textMaterial"
+                    th:style="${textList.size() == 6} ? '' : 'display:none'">
+                <i class="layui-icon">&#xe67c;</i>
+            </button>
+        </div>
+        <div class="layui-card-body">
+            <div class="layui-row layui-col-space25 content-list">
+                <div class="layui-col-md2 layui-col-sm3 layui-col-xs6 content-item" th:each="item : ${textList}">
+                    <a href="javascript:;" th:onclick="materialDetail([[${item.id}]],[[${item.type}]])">
+                        <p class="content-title" th:text="${item.name}">
+                        </p>
+                        <p class="content-desc" th:text="${item.description}">
+                        </p>
+                        <p class="content-date" th:text="${#dates.format(item.createDate, 'yyyy-MM-dd')}">
+                        </p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+    var categoryId = $('#categoryId').val();
+    $('#pictureMaterial').click(function () {
+        window.location.href = '/material/list?categoryId=' + categoryId + '&type=' + 1;
+    })
+    $('#videoMaterial').click(function () {
+        window.location.href = '/material/list?categoryId=' + categoryId + '&type=' + 2;
+    })
+    $('#textMaterial').click(function () {
+        window.location.href = '/material/list?categoryId=' + categoryId + '&type=' + 3;
+    })
+    $('#product').click(function () {
+        window.location.href = '/product/list?categoryId=' + categoryId;
+    })
+
+    function prductDetail(id) {
+        window.location.href = '/product/detail?id='+ id;
+    }
+
+    function materialDetail(id,type) {
+        layer.open({
+            type: 2 //Page层类型
+            , area:['850px','500px']
+            , title: false
+            , shade: 0.6 //遮罩透明度
+            , anim: -1 //0-6的动画形式，-1不开启
+            , content: '/material/detail?id=' + id+'&type'+type
+        });
+    }
+
+</script>
+</body>
+</html>

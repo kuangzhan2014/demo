@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="#{index.selectBrand}"></title>
+
+    <script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+
+        layui.use(['form', 'memberUtils'], function () {
+            var form = layui.form
+                , memberUtils = layui.memberUtils;
+
+            form.val("inputForm", {
+                "brandId": memberUtils.getBrandId()
+            })
+
+            form.on('select(brandId)', function (data) {
+                var brandName = $(data.elem).find("option:selected").text();
+                parent.selectBrandFormCallback(data.value, brandName);
+            });
+        })
+
+    </script>
+</head>
+<body>
+<div class="layui-fluid" style="padding: 0px;" layout:fragment="content">
+    <div class="layui-card">
+        <div class="layui-card-body" style="height: 435px;">
+            <form id="inputForm" class="layui-form" lay-filter="inputForm">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <div class="layui-input-block" style="margin-left: 0px;">
+                            <select lay-search="" name="brandId" lay-filter="brandId">
+                                <option th:each="item : ${bean}" th:value="${item.id}"
+                                        th:text="${item.name}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

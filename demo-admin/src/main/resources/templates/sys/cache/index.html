@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title>缓存管理</title>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <div class="layui-card-header">缓存管理</div>
+        <div class="layui-card-body">
+            <form class="layui-form">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">权限缓存</label>
+                    <div class="layui-input-inline col-md">
+
+                        <a class="layui-btn" th:href="@{/sys/cache/resetAuthorization}">重置缓存</a>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">字典缓存</label>
+                    <div class="layui-input-inline col-md">
+                        <a class="layui-btn" th:href="@{/sys/cache/resetDict}">重置缓存</a>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">全局参数</label>
+                    <div class="layui-input-inline col-md">
+                        <a class="layui-btn" th:href="@{/sys/cache/resetGlobalParam}">重置缓存</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="${bean.isNew()} ? '添加' : '编辑' + '权限'"></title>
+
+    <script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+        $().ready(function() {
+
+            $('#inputForm').validate({
+                rules: {
+                    name: {required: true},
+                    permissionValue: {
+                        required: true,
+                        minlength: 5
+                        /*[# th:if="${bean.isNew()}"]*/,remote: '/sys/permission/checkPermissionValue'/*[/]*/
+                    }
+                },
+                messages: {
+                    permissionValue: {
+                        remote: '权限值已存在！'
+                    }
+                }
+            });
+        });
+        layui.use('form', function(){
+
+        })
+    </script>
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <div class="layui-card-header" th:text="${bean.isNew()} ? '添加' : '编辑' + '权限'"></div>
+        <div class="layui-card-body">
+            <form id="inputForm" class="layui-form" action="save" method="post" th:object="${bean}">
+                <input type="hidden" th:field="*{id}" />
+                <div class="layui-form-item">
+                    <label class="layui-form-label">权限名</label>
+                    <div class="layui-input-inline col-md">
+                        <input th:field="*{name}" class="layui-input" maxlength="200"  />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">权限值</label>
+                    <div class="layui-input-inline col-md">
+                        <input th:field="*{permissionValue}" class="layui-input" maxlength="200"  />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">父权限</label>
+                    <div class="layui-input-inline col-md">
+                        <select th:field="*{parentId}">
+                            <option value="" label="--顶级模块--"></option>
+                            <option th:each="perm : ${rootPermissions}" th:value="${perm.id}" th:text="${perm.name}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">权限说明</label>
+                    <div class="layui-input-inline col-md">
+                        <textarea th:field="*{description}" class="layui-textarea" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit="" lay-filter="demo1">提交</button>
+                        <button type="button" class="layui-btn layui-btn-primary" onclick="history.back(); return false;">返回</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+

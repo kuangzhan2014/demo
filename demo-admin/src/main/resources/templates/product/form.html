@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+<head>
+    <title th:text="#{entity.product}"></title>
+
+</head>
+<body>
+<div class="layui-fluid" layout:fragment="content">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form id="inputForm" class="layui-form" action="save" method="post" th:object="${bean}">
+                <input type="hidden" th:field="*{id}">
+                <input type="hidden" th:field="*{categoryId}">
+                <input type="hidden" th:field="*{brandId}">
+                <div class="layui-row layui-col-space30">
+                    <div class="layui-col-md4">
+                        <a href="javascript:;" class="product-picture" id="uploadImage">
+                            <div th:if="*{productPicture ne null}">
+                                <img th:src="*{productPictureUrl}" class="product-picture">
+                            </div>
+                            <i th:if="*{productPicture == null}" class="layui-icon layui-icon-add-1" id="iconAdd"> </i>
+                        </a>
+                        <input type="hidden" th:field="*{productPicture}">
+                    </div>
+                    <div class="layui-col-md8">
+                        <div class="layui-form layui-form-pane" action="" lay-filter="component-form-element">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label" th:text="#{product.name}"></label>
+                                <div class="layui-input-block">
+                                    <input type="text" th:field="*{name}"
+                                           placeholder="" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item layui-form-text">
+                                <label class="layui-form-label" th:text="#{product.description}"></label>
+                                <div class="layui-input-block">
+                                    <textarea placeholder="" th:field="*{description}"
+                                              class="layui-textarea"></textarea>
+                                </div>
+                            </div>
+                            <div class="layui-form-item layui-form-text">
+                                <label class="layui-form-label" th:text="#{product.formula}"></label>
+                                <div class="layui-input-block">
+                                    <textarea placeholder="" th:field="*{formula}"
+                                              class="layui-textarea"></textarea>
+                                </div>
+                            </div>
+                            <div class="layui-form-item" th:style="${categoryList.size() > 0} ? '' : 'display:none'">
+                                <label class="layui-form-label" th:text="#{entity.category}"></label>
+                                <div class="layui-input-block">
+                                    <input type="checkbox" th:each="item : ${categoryList}"
+                                           th:checked="${item.status} ? false : true"
+                                           th:value="${item.id}" th:name="categoryIds" th:title="${item.name}"/>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-input-block">
+                                    <button class="layui-btn" lay-submit="" lay-filter="submitBtn"
+                                            th:text="#{common.btn.submit}"></button>
+                                    <button type="button" class="layui-btn layui-btn-primary"
+                                            th:text="#{common.btn.back}"
+                                            onclick="history.back(); return false;">
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" layout:fragment="custom-script" th:inline="javascript">
+
+    $().ready(function () {
+        // 表单验证
+        $("#inputForm").validate({
+            rules: {
+                name: {
+                    required: true,
+                }
+            },
+            messages: {}
+        });
+    });
+    var uploading = /*[[#{upload.msg.loading}]]}*/'上传中...';
+    var uploadImageMsg = /*[[#{validate.upload.productPicture}]]}*/'请上传服务商品图标';
+    layui.use(['upload', 'form'], function () {
+        var upload = layui.upload
+            , form = layui.form;
+
+        var imgIndexByInputStream = "";
+        var imgObj;
+        //上传预览图
+        upload.render({
+            elem: '#uploadImage' //绑定元素
+            , url: '/upload/imageByInputStream' //上传接口
+            , exts: 'jpg|png|jpeg'
+            , size: 10240
+            , before: function (obj) {
+                //预读本地文件示例，不支持ie8
+                imgObj = obj;
+                layer.msg(uploading, {
+                    icon: 16
+                    , shade: 0.01
+                    , time: 0
+                });
+            }
+            , done: function (res) {
+
+                layer.closeAll();
+                $('#iconAdd').hide();
+                // 预览
+                imgObj.preview(function (index, file, result) {
+                    index = index.replace("-", "");
+                    var html = '<div id="' + index + '"><img src="' + result + '" class="product-picture" /></div>'
+                    $('#uploadImage').html(html) //图片链接（base64）
+                    imgIndexByInputStream = index;
+                });
+                //上传完毕解析APK
+                $('input[name="productPicture"]').val(res[0]);
+            }
+            , error: function () {
+                //请求异常回调
+                layer.closeAll();
+            }
+        });
+
+        form.on('submit(submitBtn)', function (data) {
+            var field = data.field;
+            if (field.productPicture == '') {
+                layer.msg(uploadImageMsg);
+                return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+            }
+        });
+    });
+</script>
+</body>
+</html>

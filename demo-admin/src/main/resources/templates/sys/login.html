@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title th:text="#{app.title}"></title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" th:href="@{/static/layuiadmin/layui/css/layui.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/layuiadmin/style/admin.css}" media="all">
+    <link rel="stylesheet" th:href="@{/static/layuiadmin/style/login.css}" media="all">
+</head>
+<style>
+    .layadmin-user-login-main{
+        background-color: #ffffff;
+    }
+</style>
+<body>
+
+<div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login" style="display: none;">
+
+    <div class="layadmin-user-login-main">
+        <form lay-filter="loginForm" class="layadmin-user-login-box layadmin-user-login-body layui-form" action="#" method="post">
+            <input type="hidden" name="brandId"/>
+            <div class="layui-form-item">
+                <label class="layadmin-user-login-icon layui-icon layui-icon-username"
+                       for="LAY-user-login-username"></label>
+                <input type="text" name="username" id="LAY-user-login-username" lay-verify="required"
+                       th:placeholder="#{member.username}" class="layui-input" th:value="*{loginName}">
+            </div>
+            <div class="layui-form-item">
+                <label class="layadmin-user-login-icon layui-icon layui-icon-password"
+                       for="LAY-user-login-password"></label>
+                <input type="password" name="password" id="LAY-user-login-password" lay-verify="required"
+                       th:placeholder="#{member.password}" class="layui-input">
+            </div>
+            <!-- <div class="layui-form-item">
+                <div class="layui-row">
+                    <div class="layui-col-xs7">
+                        <label class="layadmin-user-login-icon layui-icon layui-icon-vercode" for="LAY-user-login-vercode"></label>
+                        <input type="text" name="vercode" id="LAY-user-login-vercode" lay-verify="required" placeholder="图形验证码" class="layui-input">
+                    </div>
+                    <div class="layui-col-xs5">
+                        <div style="margin-left: 10px;">
+                            <img src="https://www.oschina.net/action/user/captcha" class="layadmin-user-login-codeimg" id="LAY-user-get-vercode">
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+            <div class="layui-form-item" style="margin-bottom: 20px;">
+                <a class="layadmin-user-jump-change layadmin-link" id="forget"
+                   th:text="#{ui.login.forgetPassword}" style="margin-top: 7px;"></a>
+            </div>
+            <div class="layui-form-item">
+                <button type="submit" class="layui-btn layui-btn-fluid"
+                        th:text="#{ui.login.submit}"></button>
+            </div>
+            <!-- <div class="layui-trans layui-form-item layadmin-user-login-other">
+                <label>社交账号登入</label>
+                <a href="javascript:;"><i class="layui-icon layui-icon-login-qq"></i></a>
+                <a href="javascript:;"><i class="layui-icon layui-icon-login-wechat"></i></a>
+                <a href="javascript:;"><i class="layui-icon layui-icon-login-weibo"></i></a>
+
+                <a href="reg.html" class="layadmin-user-jump-change layadmin-link">注册帐号</a>
+            </div> -->
+        </form>
+    </div>
+    <div  id="main" style="width: 100%;height: 500px;">
+    </div>
+    <div class="layui-trans layadmin-user-login-footer">
+
+        <p>© 2018 <a href="http://www.maitianer.com/" target="_blank">maitianer.com</a></p>
+        <!-- <p>
+            <span><a href="http://www.layui.com/admin/#get" target="_blank">获取授权</a></span>
+            <span><a href="http://www.layui.com/admin/pro/" target="_blank">在线演示</a></span>
+            <span><a href="http://www.layui.com/admin/" target="_blank">前往官网</a></span>
+        </p> -->
+    </div>
+
+    <!--<div class="ladmin-user-login-theme">
+      <script type="text/html" template>
+        <ul>
+          <li data-theme=""><img src="{{ layui.setter.base }}style/res/bg-none.jpg"></li>
+          <li data-theme="#03152A" style="background-color: #03152A;"></li>
+          <li data-theme="#2E241B" style="background-color: #2E241B;"></li>
+          <li data-theme="#50314F" style="background-color: #50314F;"></li>
+          <li data-theme="#344058" style="background-color: #344058;"></li>
+          <li data-theme="#20222A" style="background-color: #20222A;"></li>
+        </ul>
+      </script>
+    </div>-->
+
+</div>
+<script type="text/javascript" th:src="@{/static/js/echarts.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/world.js}"></script>
+<script type="text/javascript" th:src="@{/static/layuiadmin/layui/layui.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+    layui.config({
+        base: '/static/layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+        , memberUtils: '{/}/static/js/memberUtils'
+    }).use(['index', 'user', 'memberUtils'], function () {
+        var $ = layui.$
+            , setter = layui.setter
+            , admin = layui.admin
+            , form = layui.form
+            , layer = layui.layer
+            , router = layui.router()
+            , search = router.search
+            ,memberUtils = layui.memberUtils;
+
+
+        form.val("loginForm", {
+            "brandId": memberUtils.getBrandId()
+        })
+        form.render();
+        var retrievePassword=/*[[#{ui.login.retrievePassword}]]*/'找回密码'
+        var responseFail=/*[[#{common.response.fail}]]*/'操作失败！'
+        var sendSuccess=/*[[#{sendEmail.response.success}]]*/'新密码已发送到你的邮箱!'
+        var buttonSubmit=/*[[#{common.btn.submit}]]*/'提交'
+        var buttonReturn=/*[[#{common.btn.back}]]*/'返回'
+
+        $('#forget').click(function () {
+            layer.open({
+                type: 2
+                , btn: [buttonSubmit, buttonReturn]
+                , title: retrievePassword
+                , closeBtn: 1
+                , area: ['400px', '180px']
+                , shadeClose: false
+                , content: ['forget','no']
+                , yes: function (index, layero) {
+                    //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+                    var iframeWin = window[layero.find('iframe')[0]['name']];
+                    if (iframeWin.inputFormValidate().form()) {
+                        var email = $($(layero).find("iframe")[0].contentWindow.document).find('input[name="email"]').val();
+                        resetPassword(email);
+                        layer.close(index);
+                    }
+                }
+                ,success: function(layero, index){
+                    stopEnter(layero, index);
+                }
+            });
+        })
+
+        function resetPassword(email) {
+            var data = JSON.stringify({
+               email: email
+            });
+            $.ajax({
+                url: "/sys/member/forget",
+                type: "POST",
+                data: data,
+                dataType: "json",
+                contentType:'application/json;charset=UTF-8',
+                cache: false,
+                success: function (result) {
+                    if (result.code == 0) {
+                        layer.msg(result.msg == null ? sendSuccess : result.msg,{
+                            offset: 't',
+                            icon: 1
+                        });
+                        // $(location).attr('href', '/sys/member/resetPassword?id=' + result.data);
+                    } else {
+                        layer.msg(result.msg == null ? responseFail : result.msg, {
+                            offset: 't',
+                            icon: 2
+                        });
+                    }
+                }
+            });
+        }
+
+        function stopEnter(layero, index) {
+            var $iframe = $(layero).find('iframe');
+            if ($iframe.length > 0) {
+                var name = $iframe[0].name;
+                var dom = top.frames[name];
+                var $body = dom.$('body');
+                $body.on('keydown', function (event) {
+                    var event = window.event || event;
+                    if (event.keyCode == 13) {
+                        return false;
+                    }
+                })
+            }
+        }
+
+        [# th:if= "${shiroLoginFailure != null}"]
+        //实际使用时记得删除该代码
+        layer.msg('[(#{${shiroLoginFailure}})]', {
+            offset: '15px'
+            , icon: 2
+        });
+        [/]
+
+        var myChart=echarts.init(document.getElementById('main'));
+        var option = {
+            visualMap: {
+                show:false,
+                color: ['orangered','yellow','lightskyblue']
+            },
+            series : [
+                {
+                    name: '',
+                    type: 'map',
+                    mapType: 'world',
+                    roam: true,
+                    scaleLimit:{
+                        min:1,
+                        max:2
+                    },
+                    itemStyle:{
+                        emphasis:{label:{show:true}}
+                    },
+
+                }
+            ]
+        };
+
+        myChart.on('click', function (params){
+            if(params.name == "China"){
+                memberUtils.setLanguage("zh_CN")
+                window.location.href = "?lang=zh_CN"
+            }else{
+                memberUtils.setLanguage("en_US")
+                window.location.href = "?lang=en_US"
+            }
+        })
+        myChart.setOption(option);
+
+
+    });
+
+
+</script>
+</body>
+</html>
