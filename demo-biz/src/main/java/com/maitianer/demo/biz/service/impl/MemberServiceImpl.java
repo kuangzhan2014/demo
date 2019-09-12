@@ -186,7 +186,10 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
     public boolean deleteData(Long id) {
 //        return removeById(id);
         Member member=getOne(new QueryWrapper<Member>().eq("id",id));
-        member.setStatus(DomainConstants.MEMBER_STATUS_DELETE);
+        if(DomainConstants.DEFAULT_SYSTEM_ADMIN_ID != id){
+            member.setStatus(DomainConstants.MEMBER_STATUS_DELETE);
+            memberRoleMapper.delete(Wrappers.<MemberRole>lambdaQuery().eq(MemberRole::getMemberId, id));
+        }
         Boolean result = updateById(member);
         return result;
     }

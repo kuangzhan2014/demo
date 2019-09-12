@@ -250,7 +250,7 @@
                 </div>
 
                 <div class="layui-form-item">
-                    <label class="layui-form-label" th:text="#{member.role.name}"></label>
+                    <label class="layui-form-label" th:text="#{role.name}"></label>
                     <div class="layui-input-block col-md">
                         <input type="radio" name="roleId" id="user" th:attr ="checked=${roleId} eq 2 " th:value="2" th:title="#{role.name.user}" lay-filter="roleId" >
                         <input type="radio" name="roleId" id="admin" th:attr ="checked=${roleId} eq 1" th:value="1" th:title="#{role.name.admin}"lay-filter="roleId">

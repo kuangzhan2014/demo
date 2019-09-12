@@ -24,6 +24,9 @@ public class DomainConstants {
     public final static int MEMBER_STATUS_DELETE = 5;
     public final static int MEMBER_STATUS_LOCKED = 9;
 
+    public final static int ROLE_STATUS_NORMAL = 0;
+    public final static int ROLE_STATUS_DELETE = 1;
+
     public final static int PARAM_GROUP_SYSTEM = 1;
     public final static int PARAM_GROUP_CUSTOM = 9;
 

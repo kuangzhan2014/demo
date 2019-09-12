@@ -90,13 +90,12 @@ public class MemberController extends BaseController {
 
     @ResponseBody
     @GetMapping("pageData")
-    public DataTableResponse<Member> pageData(DataTableRequest<Member> pageRequest, MemberQO condition,String searchProperty,String searchValue) {
+    public DataTableResponse<Member> pageData(DataTableRequest<Member> pageRequest,String searchProperty,String searchValue) {
         QueryWrapper<Member> wrapper = new QueryWrapper<Member>().eq("status",DomainConstants.MEMBER_STATUS_NORMAL);
         if (StringUtils.isNotBlank(searchProperty) && StringUtils.isNotBlank(searchValue)) {
             wrapper.like(searchProperty, searchValue);
         }
         IPage<Member> page = memberService.page(pageRequest, wrapper);
-//        IPage<Member> page = memberService.pageDate(pageRequest,condition);
         DataTableResponse<Member> dataTableResponse = new DataTableResponse<Member>().success(page);
         return dataTableResponse;
     }
@@ -187,7 +186,6 @@ public class MemberController extends BaseController {
     @GetMapping(value = "checkMemberName")
     @ResponseBody
     public boolean checkMemberNameValid(Long id, String memberName) {
-//        return memberService.findByMemberName(memberName) == null;
         QueryWrapper<Member> query = new QueryWrapper<>();
         if(StringUtils.isBlank(memberName)){
             return true;
@@ -203,7 +201,6 @@ public class MemberController extends BaseController {
     @GetMapping(value = "checkCellphone")
     @ResponseBody
     public boolean checkCellphoneValid(Long id,String cellphone) {
-//        return memberService.findByCellphone(cellphone) == null;
         QueryWrapper<Member> query = new QueryWrapper<>();
         if(StringUtils.isBlank(cellphone)){
             return true;
@@ -219,7 +216,6 @@ public class MemberController extends BaseController {
     @RequestMapping(value = "checkEmail")
     @ResponseBody
     public boolean checkEmailValid(Long id,String email) {
-//        return memberService.findByEmail(email) == null;
         QueryWrapper<Member> query = new QueryWrapper<>();
         if(StringUtils.isBlank(email)){
             return true;
@@ -257,7 +253,6 @@ public class MemberController extends BaseController {
             member.setEncryptedPassword(EncryptPassword.encryptedPassword(resetPassword));
             memberService.updateById(member);
             return memberService.sendResetPassword(member,resetPassword);
-//            return new ResultData<>(DomainConstants.ResultDataCode.SUCCESS);
         } else {
             return new ResultData<>(DomainConstants.ResultDataCode.FAIL, MessageUtils.get("UnknownEmailException"));
         }
