@@ -13,4 +13,12 @@
         WHERE r.id = mr.role_id AND mr.member_id = #{memberId}
     </select>
 
+    <select id="pageData" resultType="Role">
+        SELECT r.*
+        FROM sys_role r
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
 </mapper>

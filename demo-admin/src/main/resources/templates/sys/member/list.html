@@ -57,9 +57,7 @@
         </script>
 
         <div class="layui-card-body">
-
             <table id="dataTable" lay-filter="dataTable"></table>
-            <!--<div id="pagination"></div>-->
         </div>
 
     </div>
@@ -131,7 +129,7 @@
                     , {title: /*[[#{member.cellphone}]]*/ '手机号码', field: 'cellphone',width: 120}
                     , {title: /*[[#{member.email}]]*/ '邮箱', field: 'email',width: 200}
                     , {title: /*[[#{member.realName}]]*/ '真实姓名', field: 'realName'}
-                    , {title: /*[[#{member.role.name}]]*/ '用户类型', field: 'roleName'}
+                    , {title: /*[[#{role.name}]]*/ '角色名', field: 'roleName'}
                     , {title: /*[[#{member.position}]]*/ '职位', field: 'position'}
                     , {title: /*[[#{member.area}]]*/ '地区', field: 'area',width: 300}
                     , {title: /*[[#{member.status}]]*/ '状态', field: 'statusLabel',width: 80}

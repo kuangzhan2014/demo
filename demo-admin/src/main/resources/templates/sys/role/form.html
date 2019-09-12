@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
 <head>
-    <title th:text="${bean.isNew()} ? '添加' : '编辑' + '系统角色'">系统角色</title>
+    <!--<title th:text="${bean.isNew()} ? '添加' : '编辑' + '系统角色'"></title>-->
 
     <script type="text/javascript" layout:fragment="custom-content" th:inline="javascript">
         $().ready(function() {
@@ -15,13 +15,32 @@
                         required: true,
                     },
                     code: {
-                        required: true
-                        /*[# th:if="${bean.isNew()}"]*/,remote: '/sys/role/checkCode'/*[/]*/
+                        required: true,
+                        remote: {
+                            url: '/sys/role/checkCode'
+                            , type: 'GET'
+                            , dataType: 'JSON'
+                            , data: {
+                                id: function () {
+                                    return $('input[name="id"]').val();
+                                },
+                                memberNumber: function () {
+                                    return $('input[name="code"]').val();
+                                }
+                            }
+                            , dataFilter: function (data) {//判断控制器返回的内容
+                                if (data == "true") {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            }
+                        }
                     }
                 },
                 messages: {
                     code: {
-                        remote: '角色标识已存在！'
+                        remote: /*[[#{validate.role}]]*/"该角色标识已存在！"
                     }
                 }
             });
@@ -54,30 +73,31 @@
 <body>
 <div class="layui-fluid" layout:fragment="content">
     <div class="layui-card">
-        <div class="layui-card-header" th:text="${bean.isNew()} ? '添加' : '编辑' + '系统角色'"></div>
+        <div class="layui-card-header" th:text="${bean.isNew()} ? #{common.btn.add(#{entity.role})} : #{common.btn.edit}"></div>
         <div class="layui-card-body">
             <form id="inputForm" class="layui-form" action="save" method="post" th:object="${bean}">
                 <input type="hidden" th:field="*{id}" />
+                <input type="hidden" th:field="*{status}" />
                 <div class="layui-form-item">
-                    <label class="layui-form-label">名称</label>
+                    <label class="layui-form-label" th:text="#{role.name}"></label>
                     <div class="layui-input-inline col-md">
                         <input type="text" th:field="*{name}" class="layui-input" maxlength="200"  />
                     </div>
                 </div>
                 <div class="layui-form-item">
-                    <label class="layui-form-label">角色标识</label>
+                    <label class="layui-form-label" th:text="#{role.identification}"></label>
                     <div class="layui-input-inline col-md">
                         <input type="text" th:field="*{code}" class="layui-input" maxlength="200"  />
                     </div>
                 </div>
                 <div class="layui-form-item">
-                    <label class="layui-form-label">角色说明</label>
+                    <label class="layui-form-label" th:text="#{role.description}"></label>
                     <div class="layui-input-inline col-md">
                         <textarea th:field="*{description}" class="layui-textarea"></textarea>
                     </div>
                 </div>
                 <div class="layui-form-item">
-                    <label class="layui-form-label">角色权限</label>
+                    <label class="layui-form-label" th:text="#{role.permissions}"></label>
                     <div class="layui-input-block">
                         <fieldset th:each="rootPerm : ${rootPermissions}" class="layui-elem-field layui-inline">
                             <div class="layui-field-box">
@@ -98,8 +118,8 @@
                 </div>
                 <div class="layui-form-item">
                     <div class="layui-input-block">
-                        <button class="layui-btn" type="submit">提交</button>
-                        <button type="button" class="layui-btn layui-btn-primary" onclick="history.back(); return false;">返回</button>
+                        <button class="layui-btn" type="submit" th:text="#{common.btn.submit}"></button>
+                        <button type="button" class="layui-btn layui-btn-primary" onclick="history.back(); return false;" th:text="#{common.btn.back}"></button>
                     </div>
                 </div>
             </form>

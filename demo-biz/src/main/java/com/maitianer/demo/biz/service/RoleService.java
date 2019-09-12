@@ -13,9 +13,13 @@ public interface RoleService extends IService<Role> {
 
     boolean deleteBatchIds(Long[] ids);
 
+    boolean deleteData(Long id);
+
     List<Role> findByMemberId(Long memberId);
 
     Role findByCode(String code);
 
     Role saveRole(Role role, Long[] permissionIds);
+
+
 }
